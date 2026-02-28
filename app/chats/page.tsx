@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
@@ -8,6 +8,10 @@ import type { Application, SessionWithPreview, Stats } from '@/lib/types';
 import { buildAppMap, dateStrToMs, formatDate, formatDuration } from '@/lib/ui';
 
 export default function ChatsPage() {
+  return <Suspense><ChatsPageInner /></Suspense>;
+}
+
+function ChatsPageInner() {
   const searchParams = useSearchParams();
   const [sessions, setSessions] = useState<SessionWithPreview[]>([]);
   const [apps, setApps] = useState<Application[]>([]);

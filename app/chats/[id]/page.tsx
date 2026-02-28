@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Sidebar from '@/components/Sidebar';
@@ -9,6 +9,10 @@ import type { Application, Message, Session } from '@/lib/types';
 import { buildAppMap } from '@/lib/ui';
 
 export default function ChatDetailPage() {
+  return <Suspense><ChatDetailPageInner /></Suspense>;
+}
+
+function ChatDetailPageInner() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const searchParams = useSearchParams();
