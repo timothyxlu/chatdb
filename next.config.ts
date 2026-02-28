@@ -19,12 +19,13 @@ const nextConfig: NextConfig = {
   // reach OpenNext's esbuild step.
   serverExternalPackages: isDev ? LOCAL_DEV_PACKAGES : [],
 
-  webpack(config, { dev }) {
-    if (!dev) {
-      // Production build: replace local-dev-only packages with empty stubs.
-      // These packages (libsql, chromadb, ollama) are only used in local dev
-      // code paths that are never reached in production where Cloudflare D1,
-      // Vectorize, and Workers AI bindings are always provided.
+  webpack(config, { dev, isServer, nextRuntime }) {
+    // Stub local-dev-only packages when they can't be resolved at runtime:
+    //  - Production: all bundles (Cloudflare provides D1/Vectorize/Workers AI)
+    //  - Dev edge/middleware: Node-only packages can't run in edge runtime
+    //  - Dev client: Node-only packages can't run in the browser
+    // Dev server (Node.js) relies on serverExternalPackages instead.
+    if (!dev || !isServer || nextRuntime === 'edge') {
       const stub = path.resolve('./lib/node-only-stub.js');
       config.resolve.alias = {
         ...(config.resolve.alias as Record<string, string>),
