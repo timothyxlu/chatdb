@@ -9,6 +9,8 @@ import { getCfEnv } from './lib/cf-env';
 import { users } from './lib/schema';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  // Required on Cloudflare Workers — NextAuth can't auto-detect the host
+  trustHost: true,
   providers: [
     GitHub({
       clientId: process.env.AUTH_GITHUB_ID!,
