@@ -14,8 +14,6 @@ database_id = "REPLACE_WITH_YOUR_D1_ID"
 [[vectorize]]
 binding = "VECTORIZE"
 index_name = "chatdb-messages"
-dimensions = 1024       # @cf/baai/bge-m3
-metric = "cosine"
 
 [ai]
 binding = "AI"          # Workers AI — @cf/baai/bge-m3
