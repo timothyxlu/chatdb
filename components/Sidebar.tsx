@@ -144,10 +144,7 @@ export default function Sidebar({ activePage, filter, onFilterChange }: SidebarP
               <p className="text-xs text-label-tertiary truncate">@{user.username}</p>
             </div>
             <button
-              onClick={async () => {
-                await signOut({ redirect: false });
-                window.location.href = '/login';
-              }}
+              onClick={() => signOut({ callbackUrl: '/login' })}
               className="text-xs text-label-tertiary hover:text-label-secondary transition-colors shrink-0"
             >
               Sign out

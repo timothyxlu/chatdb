@@ -4,6 +4,9 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'ChatDB',
   description: 'Browse and search your AI conversation history',
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
