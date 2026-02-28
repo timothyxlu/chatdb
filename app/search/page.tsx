@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import { Suspense, useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
@@ -8,6 +8,10 @@ import type { Application, SearchResult } from '@/lib/types';
 import { buildAppMap } from '@/lib/ui';
 
 export default function SearchPage() {
+  return <Suspense><SearchPageInner /></Suspense>;
+}
+
+function SearchPageInner() {
   const searchParams = useSearchParams();
   const initialQ = searchParams.get('q') ?? '';
   const [query, setQuery] = useState(initialQ);
