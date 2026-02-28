@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { handleSignOut } from '@/app/actions/auth';
 import type { Application, UserProfile } from '@/lib/types';
 
 interface SidebarProps {
@@ -143,7 +142,7 @@ export default function Sidebar({ activePage, filter, onFilterChange }: SidebarP
               <p className="text-sm font-semibold text-label-primary truncate">{user.username}</p>
               <p className="text-xs text-label-tertiary truncate">@{user.username}</p>
             </div>
-            <form action={handleSignOut}>
+            <form action="/api/signout" method="POST">
               <button
                 type="submit"
                 className="text-xs text-label-tertiary hover:text-label-secondary transition-colors shrink-0"
