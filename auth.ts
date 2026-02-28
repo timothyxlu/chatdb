@@ -5,6 +5,7 @@
 import NextAuth from 'next-auth';
 import GitHub from 'next-auth/providers/github';
 import { db } from './lib/db';
+import { getCfEnv } from './lib/cf-env';
 import { users } from './lib/schema';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -19,7 +20,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (!profile?.id) return false;
 
       const githubId = String(profile.id);
-      const database = db(); // local SQLite in dev; production routes provide D1
+      const env = await getCfEnv();
+      const database = db(env.DB);
 
       try {
         await database
