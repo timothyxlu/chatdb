@@ -1,0 +1,25 @@
+name = "chatdb"
+main = ".open-next/worker.js"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Static assets produced by @opennextjs/cloudflare build
+assets = { directory = ".open-next/assets" }
+
+[[d1_databases]]
+binding = "DB"
+database_name = "chatdb-prod"
+database_id = "REPLACE_WITH_YOUR_D1_ID"
+
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "chatdb-messages"
+dimensions = 1024       # @cf/baai/bge-m3
+metric = "cosine"
+
+[ai]
+binding = "AI"          # Workers AI — @cf/baai/bge-m3
+
+[[kv_namespaces]]
+binding = "KV"
+id = "REPLACE_WITH_YOUR_KV_ID"

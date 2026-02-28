@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChatDB — Chat History</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #F5F5F7;
+    width: 1440px;
+    height: 900px;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 260px;
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    border-right: 1px solid rgba(0,0,0,0.07);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .sidebar-header {
+    padding: 28px 20px 16px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .logo-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(145deg, #2563eb, #7c3aed);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.25);
+  }
+  .logo-name { font-size: 17px; font-weight: 700; color: #1D1D1F; letter-spacing: -0.3px; }
+
+  .sidebar-scroll { flex: 1; overflow-y: auto; padding: 12px 10px; }
+
+  .nav-section {
+    margin-bottom: 8px;
+  }
+  .nav-section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #AEAEB2;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    padding: 8px 10px 4px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #3A3A3C;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-bottom: 1px;
+  }
+  .nav-item:hover { background: rgba(0,0,0,0.05); }
+  .nav-item.active { background: rgba(0, 113, 227, 0.1); color: #0071E3; }
+  .nav-icon { font-size: 15px; width: 22px; text-align: center; }
+  .nav-count {
+    margin-left: auto;
+    font-size: 12px;
+    font-weight: 500;
+    color: #AEAEB2;
+  }
+  .nav-item.active .nav-count { color: #0071E3; opacity: 0.7; }
+
+  .sidebar-footer {
+    padding: 14px 20px;
+    border-top: 1px solid rgba(0,0,0,0.06);
+  }
+  .user-row { display: flex; align-items: center; gap: 10px; }
+  .avatar {
+    width: 34px; height: 34px;
+    background: linear-gradient(145deg, #2563eb, #7c3aed);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: white;
+    flex-shrink: 0;
+  }
+  .user-name { font-size: 13px; font-weight: 600; color: #1D1D1F; }
+  .user-handle { font-size: 12px; color: #AEAEB2; }
+  .sign-out-btn {
+    margin-left: auto;
+    background: none; border: none;
+    font-size: 12px; color: #AEAEB2;
+    cursor: pointer; font-family: 'Inter', sans-serif;
+  }
+  .sign-out-btn:hover { color: #6E6E73; }
+
+  /* ── Main ── */
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+  .toolbar {
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(32px);
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .page-title { font-size: 20px; font-weight: 700; color: #1D1D1F; letter-spacing: -0.3px; }
+  .spacer { flex: 1; }
+
+  .search-bar {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(118,118,128,0.12);
+    border-radius: 10px;
+    padding: 8px 14px;
+    width: 280px;
+  }
+  .search-bar input {
+    background: none; border: none; outline: none;
+    font-size: 14px; color: #1D1D1F;
+    font-family: 'Inter', sans-serif; width: 100%;
+  }
+  .search-bar input::placeholder { color: #AEAEB2; }
+  .search-icon { color: #AEAEB2; font-size: 15px; }
+
+  .filter-pill {
+    display: flex; align-items: center; gap: 5px;
+    background: rgba(118,118,128,0.1);
+    border: none;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 13px; font-weight: 500; color: #3A3A3C;
+    cursor: pointer; font-family: 'Inter', sans-serif;
+  }
+
+  /* Stats */
+  .stats-strip {
+    display: flex;
+    gap: 12px;
+    padding: 20px 28px 0;
+  }
+  .stat {
+    background: white;
+    border: 1px solid rgba(0,0,0,0.07);
+    border-radius: 16px;
+    padding: 16px 20px;
+    flex: 1;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04);
+  }
+  .stat-label { font-size: 12px; color: #AEAEB2; font-weight: 500; margin-bottom: 4px; }
+  .stat-val { font-size: 26px; font-weight: 700; color: #1D1D1F; letter-spacing: -0.5px; }
+  .stat-trend { font-size: 12px; color: #34C759; margin-top: 2px; font-weight: 500; }
+
+  /* Filter chips */
+  .chips-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 28px 12px;
+  }
+  .chip {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer; border: none;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s;
+  }
+  .chip.active { background: #0071E3; color: white; }
+  .chip:not(.active) { background: white; color: #3A3A3C; border: 1px solid rgba(0,0,0,0.1); }
+  .chip:not(.active):hover { border-color: #0071E3; color: #0071E3; }
+
+  .sort-pill {
+    margin-left: auto;
+    background: white; border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 20px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500; color: #3A3A3C;
+    cursor: pointer; font-family: 'Inter', sans-serif;
+  }
+
+  /* List */
+  .list-wrap {
+    flex: 1; overflow-y: auto;
+    padding: 0 28px 24px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .chat-row {
+    background: white;
+    border: 1px solid rgba(0,0,0,0.07);
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03), 0 4px 12px rgba(0,0,0,0.04);
+    transition: all 0.18s ease;
+  }
+  .chat-row:hover {
+    border-color: rgba(0,113,227,0.25);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05), 0 8px 24px rgba(0,113,227,0.08);
+    transform: translateY(-1px);
+  }
+  .chat-row.selected {
+    border-color: rgba(0,113,227,0.4);
+    background: rgba(0,113,227,0.03);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04), 0 8px 24px rgba(0,113,227,0.1);
+  }
+  .agent-avatar {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .av-claude { background: #FFF3F0; }
+  .av-gpt { background: #F0FAF5; }
+  .av-gemini { background: #EFF6FF; }
+  .av-custom { background: #F5F3FF; }
+
+  .row-content { flex: 1; min-width: 0; }
+  .row-top { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .row-title { font-size: 14px; font-weight: 600; color: #1D1D1F; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .agent-pill {
+    font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 8px;
+    flex-shrink: 0; letter-spacing: 0.1px;
+  }
+  .pill-claude { background: #FFF0ED; color: #D44D27; }
+  .pill-gpt { background: #EDFAF5; color: #1A7A57; }
+  .pill-gemini { background: #EBF2FF; color: #1A5DB5; }
+  .pill-custom { background: #F0EEFF; color: #5B44C0; }
+
+  .row-preview { font-size: 13px; color: #AEAEB2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px; }
+  .row-meta { display: flex; align-items: center; gap: 14px; }
+  .meta { font-size: 12px; color: #C7C7CC; display: flex; align-items: center; gap: 4px; }
+  .row-date { margin-left: auto; font-size: 12px; color: #C7C7CC; white-space: nowrap; }
+</style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-row">
+        <div class="logo-icon">💬</div>
+        <span class="logo-name">ChatDB</span>
+      </div>
+    </div>
+    <div class="sidebar-scroll">
+      <div class="nav-section">
+        <div class="nav-section-title">Library</div>
+        <div class="nav-item active"><span class="nav-icon">📚</span>All Chats<span class="nav-count">248</span></div>
+        <div class="nav-item"><span class="nav-icon">⭐</span>Starred<span class="nav-count">14</span></div>
+        <div class="nav-item"><span class="nav-icon">🕐</span>Recent</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Applications</div>
+        <div class="nav-item"><span class="nav-icon">🟠</span>Claude<span class="nav-count">134</span></div>
+        <div class="nav-item"><span class="nav-icon">🟢</span>ChatGPT<span class="nav-count">81</span></div>
+        <div class="nav-item"><span class="nav-icon">🔵</span>Gemini<span class="nav-count">22</span></div>
+        <div class="nav-item"><span class="nav-icon">🟣</span>Other<span class="nav-count">11</span></div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">More</div>
+        <div class="nav-item"><span class="nav-icon">⚙️</span>Settings</div>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="avatar">TL</div>
+        <div>
+          <div class="user-name">Tim Lu</div>
+          <div class="user-handle">@timothyxlu</div>
+        </div>
+        <button class="sign-out-btn">Sign out</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="toolbar">
+      <h1 class="page-title">All Chats</h1>
+      <div class="spacer"></div>
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input placeholder="Search conversations…" />
+      </div>
+      <button class="filter-pill">⚡ Filter</button>
+    </div>
+
+    <div class="stats-strip">
+      <div class="stat">
+        <div class="stat-label">Total Conversations</div>
+        <div class="stat-val">248</div>
+        <div class="stat-trend">↑ 12 this week</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Total Messages</div>
+        <div class="stat-val">3,841</div>
+        <div class="stat-trend">↑ 184 this week</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Apps Used</div>
+        <div class="stat-val">4</div>
+        <div class="stat-trend" style="color:#AEAEB2;">Claude · ChatGPT · Gemini · Other</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Avg. Messages / Chat</div>
+        <div class="stat-val">15.5</div>
+        <div class="stat-trend" style="color:#AEAEB2;">Last 30 days</div>
+      </div>
+    </div>
+
+    <div class="chips-row">
+      <button class="chip active">All</button>
+      <button class="chip">Today</button>
+      <button class="chip">This Week</button>
+      <button class="chip">This Month</button>
+      <button class="chip">Claude</button>
+      <button class="chip">ChatGPT</button>
+      <button class="chip">Gemini</button>
+      <button class="sort-pill">↕ Latest First</button>
+    </div>
+
+    <div class="list-wrap">
+      <div class="chat-row selected">
+        <div class="agent-avatar av-claude">🟠</div>
+        <div class="row-content">
+          <div class="row-top">
+            <span class="row-title">Build a Next.js app with Cloudflare D1 database</span>
+            <span class="agent-pill pill-claude">Claude 3.5</span>
+          </div>
+          <div class="row-preview">I need help setting up a Next.js project that uses Cloudflare D1 as the database. Let me start by explaining the architecture...</div>
+          <div class="row-meta">
+            <span class="meta">💬 32 messages</span>
+            <span class="meta">⏱ 48 min</span>
+            <span class="row-date">Today, 2:34 PM</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-row">
+        <div class="agent-avatar av-gpt">🟢</div>
+        <div class="row-content">
+          <div class="row-top">
+            <span class="row-title">Implement GitHub OAuth with NextAuth.js</span>
+            <span class="agent-pill pill-gpt">ChatGPT</span>
+          </div>
+          <div class="row-preview">How do I set up GitHub OAuth login in a Next.js app using NextAuth.js? I want users to sign in with their GitHub accounts...</div>
+          <div class="row-meta">
+            <span class="meta">💬 18 messages</span>
+            <span class="meta">⏱ 22 min</span>
+            <span class="row-date">Today, 10:12 AM</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-row">
+        <div class="agent-avatar av-claude">🟠</div>
+        <div class="row-content">
+          <div class="row-top">
+            <span class="row-title">Debugging React state management with Zustand</span>
+            <span class="agent-pill pill-claude">Claude 3.5</span>
+          </div>
+          <div class="row-preview">I'm having trouble with Zustand store updates not triggering re-renders in my component. The state changes but the UI doesn't update...</div>
+          <div class="row-meta">
+            <span class="meta">💬 24 messages</span>
+            <span class="meta">⏱ 31 min</span>
+            <span class="row-date">Yesterday, 5:47 PM</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-row">
+        <div class="agent-avatar av-gemini">🔵</div>
+        <div class="row-content">
+          <div class="row-top">
+            <span class="row-title">Optimizing SQL queries for large datasets</span>
+            <span class="agent-pill pill-gemini">Gemini 1.5</span>
+          </div>
+          <div class="row-preview">I have a SQLite query that's taking too long on a 500k row table. Can you help me optimize it with proper indexes...</div>
+          <div class="row-meta">
+            <span class="meta">💬 11 messages</span>
+            <span class="meta">⏱ 14 min</span>
+            <span class="row-date">Feb 25, 3:20 PM</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-row">
+        <div class="agent-avatar av-custom">🟣</div>
+        <div class="row-content">
+          <div class="row-top">
+            <span class="row-title">Code review for authentication middleware</span>
+            <span class="agent-pill pill-custom">Other</span>
+          </div>
+          <div class="row-preview">Please review this JWT middleware implementation and point out any security vulnerabilities or improvements needed...</div>
+          <div class="row-meta">
+            <span class="meta">💬 8 messages</span>
+            <span class="meta">⏱ 9 min</span>
+            <span class="row-date">Feb 24, 11:05 AM</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-row">
+        <div class="agent-avatar av-gpt">🟢</div>
+        <div class="row-content">
+          <div class="row-top">
+            <span class="row-title">Designing a REST API for a chat history service</span>
+            <span class="agent-pill pill-gpt">ChatGPT</span>
+          </div>
+          <div class="row-preview">Help me design a REST API that stores and retrieves AI chat history. What endpoints should I create and what should the schema look like?</div>
+          <div class="row-meta">
+            <span class="meta">💬 21 messages</span>
+            <span class="meta">⏱ 27 min</span>
+            <span class="row-date">Feb 23, 9:30 AM</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

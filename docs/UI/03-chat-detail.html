@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChatDB — Chat Detail</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #F5F5F7;
+    width: 1440px;
+    height: 900px;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ── Sidebar (same as list page) ── */
+  .sidebar {
+    width: 260px;
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(32px);
+    border-right: 1px solid rgba(0,0,0,0.07);
+    display: flex; flex-direction: column;
+    flex-shrink: 0;
+  }
+  .sidebar-header {
+    padding: 28px 20px 16px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .logo-row { display: flex; align-items: center; gap: 10px; }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(145deg, #2563eb, #7c3aed);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.25);
+  }
+  .logo-name { font-size: 17px; font-weight: 700; color: #1D1D1F; }
+  .sidebar-scroll { flex: 1; overflow-y: auto; padding: 12px 10px; }
+  .nav-section-title {
+    font-size: 11px; font-weight: 600; color: #AEAEB2;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    padding: 8px 10px 4px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 9px;
+    padding: 8px 10px; border-radius: 10px;
+    font-size: 14px; font-weight: 500; color: #3A3A3C;
+    cursor: pointer; margin-bottom: 1px;
+  }
+  .nav-item:hover { background: rgba(0,0,0,0.05); }
+  .nav-item.active { background: rgba(0,113,227,0.1); color: #0071E3; }
+  .nav-icon { font-size: 15px; width: 22px; text-align: center; }
+  .nav-count { margin-left: auto; font-size: 12px; color: #AEAEB2; }
+  .sidebar-footer {
+    padding: 14px 20px;
+    border-top: 1px solid rgba(0,0,0,0.06);
+  }
+  .user-row { display: flex; align-items: center; gap: 10px; }
+  .avatar {
+    width: 34px; height: 34px;
+    background: linear-gradient(145deg, #2563eb, #7c3aed);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: white;
+  }
+  .user-name { font-size: 13px; font-weight: 600; color: #1D1D1F; }
+  .user-handle { font-size: 12px; color: #AEAEB2; }
+
+  /* ── Main ── */
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+  .detail-toolbar {
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(32px);
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .back-btn {
+    display: flex; align-items: center; gap: 5px;
+    background: none; border: none; cursor: pointer;
+    font-size: 14px; font-weight: 500; color: #0071E3;
+    font-family: 'Inter', sans-serif;
+    padding: 6px 10px; border-radius: 8px;
+    transition: background 0.15s;
+  }
+  .back-btn:hover { background: rgba(0,113,227,0.08); }
+
+  .toolbar-center { flex: 1; text-align: center; }
+  .session-title { font-size: 15px; font-weight: 600; color: #1D1D1F; }
+  .session-sub { font-size: 12px; color: #AEAEB2; margin-top: 1px; }
+
+  .toolbar-actions { display: flex; align-items: center; gap: 8px; }
+  .icon-btn {
+    width: 34px; height: 34px;
+    background: rgba(118,118,128,0.1);
+    border: none; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .icon-btn:hover { background: rgba(118,118,128,0.2); }
+
+  /* ── Chat area ── */
+  .chat-body {
+    flex: 1; overflow-y: auto;
+    padding: 28px 0;
+    background: #F5F5F7;
+  }
+  .messages-wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; display: flex; flex-direction: column; gap: 20px; }
+
+  /* Session info banner */
+  .session-banner {
+    background: white;
+    border: 1px solid rgba(0,0,0,0.07);
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    margin-bottom: 8px;
+  }
+  .banner-agent-icon {
+    width: 44px; height: 44px;
+    background: #FFF3F0; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .banner-info { flex: 1; }
+  .banner-title { font-size: 15px; font-weight: 600; color: #1D1D1F; margin-bottom: 3px; }
+  .banner-meta { display: flex; gap: 16px; }
+  .banner-meta-item { font-size: 12px; color: #AEAEB2; display: flex; align-items: center; gap: 4px; }
+  .banner-pill {
+    font-size: 11px; font-weight: 600;
+    padding: 4px 10px; border-radius: 8px;
+    background: #FFF0ED; color: #D44D27;
+  }
+
+  /* Messages */
+  .msg { display: flex; flex-direction: column; gap: 2px; }
+  .msg-user { align-items: flex-end; }
+  .msg-agent { align-items: flex-start; }
+
+  .msg-header {
+    display: flex; align-items: center; gap: 7px;
+    margin-bottom: 4px;
+  }
+  .msg-header-agent {
+    flex-direction: row;
+  }
+  .msg-header-user {
+    flex-direction: row-reverse;
+  }
+  .msg-avatar {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; flex-shrink: 0;
+  }
+  .msg-avatar-agent { background: #FFF3F0; }
+  .msg-avatar-user {
+    background: linear-gradient(145deg, #2563eb, #7c3aed);
+    color: white; font-weight: 700;
+    font-size: 10px;
+  }
+  .msg-sender { font-size: 12px; font-weight: 600; color: #6E6E73; }
+  .msg-time { font-size: 11px; color: #C7C7CC; }
+
+  .bubble {
+    max-width: 82%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 14px; line-height: 1.6;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .bubble-agent {
+    background: white;
+    color: #1D1D1F;
+    border: 1px solid rgba(0,0,0,0.06);
+    border-bottom-left-radius: 4px;
+  }
+  .bubble-user {
+    background: #0071E3;
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+  .bubble code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px;
+    background: rgba(0,0,0,0.06);
+    padding: 2px 5px; border-radius: 4px;
+  }
+  .bubble-user code { background: rgba(255,255,255,0.2); }
+
+  .code-block {
+    background: #1D1D1F;
+    color: #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    margin-top: 10px;
+    max-width: 82%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
+  .code-lang {
+    font-size: 11px; color: #AEAEB2; font-family: 'Inter', sans-serif;
+    margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+  }
+  .code-lang::before {
+    content: '';
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: #34C759; border-radius: 50%;
+  }
+  .kw { color: #ff8c72; }
+  .fn { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .cm { color: #546E7A; }
+
+  /* Typing indicator */
+  .typing { display: flex; gap: 4px; align-items: center; padding: 14px 16px; }
+  .typing-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #AEAEB2;
+    animation: bounce 1.2s infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%,80%,100% { transform: translateY(0); }
+    40% { transform: translateY(-6px); }
+  }
+</style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-row">
+        <div class="logo-icon">💬</div>
+        <span class="logo-name">ChatDB</span>
+      </div>
+    </div>
+    <div class="sidebar-scroll">
+      <div class="nav-section-title">Library</div>
+      <div class="nav-item active"><span class="nav-icon">📚</span>All Chats<span class="nav-count">248</span></div>
+      <div class="nav-item"><span class="nav-icon">⭐</span>Starred<span class="nav-count">14</span></div>
+      <div class="nav-item"><span class="nav-icon">🕐</span>Recent</div>
+      <div class="nav-section-title" style="margin-top:8px;">Applications</div>
+      <div class="nav-item"><span class="nav-icon">🟠</span>Claude<span class="nav-count">134</span></div>
+      <div class="nav-item"><span class="nav-icon">🟢</span>GPT-4<span class="nav-count">81</span></div>
+      <div class="nav-item"><span class="nav-icon">🔵</span>Gemini<span class="nav-count">22</span></div>
+      <div class="nav-item"><span class="nav-icon">🟣</span>Custom<span class="nav-count">11</span></div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="avatar">TL</div>
+        <div>
+          <div class="user-name">Tim Lu</div>
+          <div class="user-handle">@timothyxlu</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="detail-toolbar">
+      <button class="back-btn">← All Chats</button>
+      <div class="toolbar-center">
+        <div class="session-title">Build a Next.js app with Cloudflare D1</div>
+        <div class="session-sub">Today, 2:34 PM · 32 messages · 48 min</div>
+      </div>
+      <div class="toolbar-actions">
+        <button class="icon-btn" title="Star">⭐</button>
+        <button class="icon-btn" title="Export">↗</button>
+        <button class="icon-btn" title="More">···</button>
+      </div>
+    </div>
+
+    <div class="chat-body">
+      <div class="messages-wrap">
+
+        <!-- Session Banner -->
+        <div class="session-banner">
+          <div class="banner-agent-icon">🟠</div>
+          <div class="banner-info">
+            <div class="banner-title">Build a Next.js app with Cloudflare D1 database</div>
+            <div class="banner-meta">
+              <span class="banner-meta-item">💬 32 messages</span>
+              <span class="banner-meta-item">⏱ 48 min</span>
+              <span class="banner-meta-item">📅 Feb 27, 2026</span>
+            </div>
+          </div>
+          <span class="banner-pill">Claude 3.5 Sonnet</span>
+        </div>
+
+        <!-- User message 1 -->
+        <div class="msg msg-user">
+          <div class="msg-header msg-header-user">
+            <div class="msg-avatar msg-avatar-user">TL</div>
+            <span class="msg-sender">You</span>
+            <span class="msg-time">2:34 PM</span>
+          </div>
+          <div class="bubble bubble-user">
+            I need help setting up a Next.js project with Cloudflare D1 as the database. The app should support GitHub login via NextAuth.js and show a list of user conversations. What's the best architecture for this?
+          </div>
+        </div>
+
+        <!-- Agent message 1 -->
+        <div class="msg msg-agent">
+          <div class="msg-header msg-header-agent">
+            <div class="msg-avatar msg-avatar-agent">🟠</div>
+            <span class="msg-sender">Claude 3.5</span>
+            <span class="msg-time">2:34 PM</span>
+          </div>
+          <div class="bubble bubble-agent">
+            Great project! Here's an architecture I'd recommend for a Next.js + Cloudflare D1 chat history app with GitHub auth:<br><br>
+            <strong>Tech Stack:</strong><br>
+            • <code>Next.js 15</code> with App Router<br>
+            • <code>NextAuth.js v5</code> for GitHub OAuth<br>
+            • <code>Cloudflare D1</code> (SQLite-compatible) for production<br>
+            • <code>better-sqlite3</code> for local development<br>
+            • <code>Drizzle ORM</code> for type-safe queries across both
+          </div>
+          <div class="code-block">
+            <div class="code-lang">typescript — schema.ts</div>
+            <span class="kw">export const</span> <span class="fn">users</span> = sqliteTable(<span class="str">'users'</span>, {<br>
+            &nbsp;&nbsp;id: text(<span class="str">'id'</span>).primaryKey(),<br>
+            &nbsp;&nbsp;githubId: text(<span class="str">'github_id'</span>).unique(),<br>
+            &nbsp;&nbsp;username: text(<span class="str">'username'</span>).notNull(),<br>
+            &nbsp;&nbsp;avatarUrl: text(<span class="str">'avatar_url'</span>),<br>
+            &nbsp;&nbsp;createdAt: integer(<span class="str">'created_at'</span>),<br>
+            });<br><br>
+            <span class="cm">// Chat sessions table</span><br>
+            <span class="kw">export const</span> <span class="fn">sessions</span> = sqliteTable(<span class="str">'sessions'</span>, {<br>
+            &nbsp;&nbsp;id: text(<span class="str">'id'</span>).primaryKey(),<br>
+            &nbsp;&nbsp;userId: text(<span class="str">'user_id'</span>).references(() => users.id),<br>
+            &nbsp;&nbsp;agentName: text(<span class="str">'agent_name'</span>).notNull(),<br>
+            &nbsp;&nbsp;title: text(<span class="str">'title'</span>),<br>
+            &nbsp;&nbsp;updatedAt: integer(<span class="str">'updated_at'</span>),<br>
+            });
+          </div>
+        </div>
+
+        <!-- User message 2 -->
+        <div class="msg msg-user">
+          <div class="msg-header msg-header-user">
+            <div class="msg-avatar msg-avatar-user">TL</div>
+            <span class="msg-sender">You</span>
+            <span class="msg-time">2:41 PM</span>
+          </div>
+          <div class="bubble bubble-user">
+            How do I handle the database connection differently for local development vs Cloudflare production?
+          </div>
+        </div>
+
+        <!-- Agent message 2 -->
+        <div class="msg msg-agent">
+          <div class="msg-header msg-header-agent">
+            <div class="msg-avatar msg-avatar-agent">🟠</div>
+            <span class="msg-sender">Claude 3.5</span>
+            <span class="msg-time">2:42 PM</span>
+          </div>
+          <div class="bubble bubble-agent">
+            The cleanest approach is to abstract the database behind a single <code>getDb()</code> function that returns the right driver based on the environment. Drizzle ORM makes this easy since it works with both SQLite drivers.
+          </div>
+          <div class="code-block">
+            <div class="code-lang">typescript — lib/db.ts</div>
+            <span class="kw">import</span> { drizzle } <span class="kw">from</span> <span class="str">'drizzle-orm/better-sqlite3'</span>;<br>
+            <span class="kw">import</span> { drizzle <span class="kw">as</span> d1 } <span class="kw">from</span> <span class="str">'drizzle-orm/d1'</span>;<br><br>
+            <span class="kw">export function</span> <span class="fn">getDb</span>(env?: CloudflareEnv) {<br>
+            &nbsp;&nbsp;<span class="kw">if</span> (process.env.NODE_ENV === <span class="str">'production'</span>) {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> <span class="fn">d1</span>(env!.DB);<br>
+            &nbsp;&nbsp;}<br>
+            &nbsp;&nbsp;<span class="cm">// Local: use SQLite file</span><br>
+            &nbsp;&nbsp;<span class="kw">const</span> sqlite = <span class="kw">new</span> <span class="fn">Database</span>(<span class="str">'local.db'</span>);<br>
+            &nbsp;&nbsp;<span class="kw">return</span> <span class="fn">drizzle</span>(sqlite);<br>
+            }
+          </div>
+        </div>
+
+        <!-- Typing indicator -->
+        <div class="msg msg-agent">
+          <div class="msg-header msg-header-agent">
+            <div class="msg-avatar msg-avatar-agent">🟠</div>
+            <span class="msg-sender">Claude 3.5</span>
+          </div>
+          <div class="bubble bubble-agent" style="padding:0;">
+            <div class="typing">
+              <div class="typing-dot"></div>
+              <div class="typing-dot"></div>
+              <div class="typing-dot"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</body>
+</html>
