@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChatDB — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #F5F5F7;
+    width: 1440px;
+    height: 900px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .page {
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: linear-gradient(160deg, #f0f4ff 0%, #F5F5F7 40%, #f5f0ff 100%);
+  }
+
+  /* Ambient blobs */
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+  }
+  .blob1 {
+    width: 500px; height: 500px;
+    background: rgba(0, 113, 227, 0.07);
+    top: -100px; left: -80px;
+  }
+  .blob2 {
+    width: 400px; height: 400px;
+    background: rgba(94, 92, 230, 0.07);
+    bottom: -60px; right: -60px;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid rgba(255,255,255,0.9);
+    border-radius: 24px;
+    box-shadow:
+      0 2px 4px rgba(0,0,0,0.04),
+      0 8px 24px rgba(0,0,0,0.06),
+      0 32px 64px rgba(0,0,0,0.06);
+    padding: 56px 52px;
+    width: 440px;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .app-icon {
+    width: 80px; height: 80px;
+    background: linear-gradient(145deg, #2563eb, #7c3aed);
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    margin-bottom: 20px;
+    box-shadow:
+      0 4px 12px rgba(37, 99, 235, 0.25),
+      0 12px 32px rgba(37, 99, 235, 0.15);
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1D1D1F;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+
+  .tagline {
+    font-size: 15px;
+    color: #6E6E73;
+    text-align: center;
+    line-height: 1.5;
+    margin-bottom: 40px;
+    max-width: 280px;
+  }
+
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: #E5E5EA;
+    margin-bottom: 32px;
+  }
+
+  .github-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 15px;
+    background: #1D1D1F;
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    letter-spacing: -0.1px;
+    box-shadow:
+      0 2px 4px rgba(0,0,0,0.1),
+      0 8px 16px rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
+  }
+  .github-btn:hover {
+    background: #3a3a3c;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.12), 0 12px 24px rgba(0,0,0,0.15);
+  }
+  .github-btn svg { width: 20px; height: 20px; }
+
+  .features {
+    margin-top: 32px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .feature-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #F2F2F7;
+  }
+  .feature-row:last-child { border-bottom: none; }
+  .feature-dot {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    background: #F2F2F7;
+  }
+  .feature-text { font-size: 13px; color: #6E6E73; line-height: 1.4; }
+  .feature-text strong { color: #1D1D1F; font-weight: 500; }
+
+  .legal {
+    margin-top: 28px;
+    font-size: 12px;
+    color: #AEAEB2;
+    text-align: center;
+    line-height: 1.6;
+  }
+  .legal a { color: #0071E3; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+
+  <div class="card">
+    <div class="app-icon">💬</div>
+    <h1>ChatDB</h1>
+    <p class="tagline">Search and explore your entire AI conversation history in one place.</p>
+    <div class="divider"></div>
+
+    <button class="github-btn">
+      <svg viewBox="0 0 24 24" fill="white">
+        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+      </svg>
+      Sign in with GitHub
+    </button>
+
+    <div class="features">
+      <div class="feature-row">
+        <div class="feature-dot">🔍</div>
+        <span class="feature-text"><strong>Full-text search</strong> across all your AI conversations</span>
+      </div>
+      <div class="feature-row">
+        <div class="feature-dot">🤖</div>
+        <span class="feature-text"><strong>Multi-app support</strong> — Claude, ChatGPT, Gemini, and more</span>
+      </div>
+      <div class="feature-row">
+        <div class="feature-dot">🔒</div>
+        <span class="feature-text"><strong>Private by default</strong> — your data stays yours</span>
+      </div>
+    </div>
+
+    <p class="legal">
+      By continuing, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.<br>
+      We only access your public GitHub profile.
+    </p>
+  </div>
+</div>
+</body>
+</html>

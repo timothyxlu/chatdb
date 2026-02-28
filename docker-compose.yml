@@ -1,0 +1,112 @@
+services:
+  # ── Next.js app ─────────────────────────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chatdb-app
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app               # bind-mount source tree for hot reload
+      - /app/node_modules    # keep the container's node_modules (not the host's)
+      - sqlite_data:/data    # persist the SQLite database across restarts
+    environment:
+      # Override the paths that differ inside the container:
+      - SQLITE_PATH=file:/data/local.db     # points to the named volume
+      - CHROMA_URL=http://chromadb:8000     # resolve via Docker service name
+      - OLLAMA_URL=http://ollama:11434      # local embedding — no API key needed
+      - NODE_ENV=development
+    env_file:
+      # Copy .env.local.example → .env.local and fill in the secrets.
+      # The `required: false` lets the stack start before .env.local exists,
+      # but GitHub login will not work until AUTH_* vars are set.
+      - path: .env.local
+        required: false
+    depends_on:
+      chromadb-health:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy   # wait until the embed model is pulled
+    restart: unless-stopped
+
+  # ── ChromaDB (local vector store) ───────────────────────────────────────────
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: chatdb-chromadb
+    ports:
+      - "8000:8000"
+    volumes:
+      - chromadb_data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+    restart: unless-stopped
+
+  chromadb-health:
+    image: curlimages/curl
+    depends_on:
+      - chromadb
+    command: ["sh", "-lc", "sleep infinity"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://chromadb:8000/api/v2/heartbeat >/dev/null"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  # ── Ollama (local embedding service) ────────────────────────────────────────
+  # Just runs the server with the default entrypoint — no TTY issues, no
+  # entrypoint overrides. Model pulling is handled by `model-puller` below.
+  # The healthcheck only passes once bge-m3 appears in /api/tags, so the
+  # app container starts only after the first pull completes (~570 MB).
+  # The model is cached in `ollama_data`, so subsequent starts are instant.
+  ollama:
+    image: ollama/ollama
+    container_name: chatdb-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list | grep -q bge-m3"]
+      interval: 10s
+      timeout: 5s
+      retries: 30        # up to 5 min for the first pull (~570 MB)
+      start_period: 10s
+    # ── Optional: NVIDIA GPU acceleration ─────────────────────────────────
+    # Uncomment if you have an NVIDIA GPU and nvidia-container-toolkit:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+  # ── One-shot init container — pulls bge-m3 into the ollama volume ───────────
+  # Exits after the pull completes. `restart: "no"` ensures it never reruns.
+  # The app waits on `ollama: condition: service_healthy`, which only passes
+  # once this container has finished and bge-m3 shows up in /api/tags.
+  model-puller:
+    image: curlimages/curl
+    container_name: chatdb-model-puller
+    depends_on:
+      ollama:
+        condition: service_started
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "until curl -sf http://ollama:11434/api/version >/dev/null 2>&1; do echo 'Waiting...'; sleep 2; done;
+      echo 'Pulling bge-m3...';
+      curl -sf --max-time 3600 -X POST http://ollama:11434/api/pull -H 'Content-Type: application/json' -d '{\"name\":\"bge-m3\",\"stream\":false}';
+      echo 'Done!'"
+    restart: "no"
+
+volumes:
+  chromadb_data:
+    driver: local
+  sqlite_data:     # persists /data/local.db between `docker compose down` calls
+    driver: local
+  ollama_data:     # caches downloaded models (~570 MB for bge-m3)
+    driver: local
