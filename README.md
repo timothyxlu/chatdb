@@ -140,11 +140,29 @@ Save the IDs printed by each command — you'll need them in step 3.
 
 ### 2. Set secrets
 
+Add these as **encrypted secrets** in the Cloudflare Dashboard (**Workers & Pages → chatdb → Settings → Variables and Secrets**):
+
+| Secret | Value |
+|---|---|
+| `AUTH_SECRET` | Random string — generate with `openssl rand -base64 32` |
+| `AUTH_GITHUB_ID` | GitHub OAuth App client ID |
+| `AUTH_GITHUB_SECRET` | GitHub OAuth App client secret |
+| `AUTH_URL` | Your Worker URL, e.g. `https://chatdb.example.workers.dev` |
+
+> **GitHub OAuth App setup** → <https://github.com/settings/developers> → *New OAuth App*
+> - Homepage URL: `https://chatdb.example.workers.dev`
+> - Authorization callback URL: `https://chatdb.example.workers.dev/api/auth/callback/github`
+
+Or via the CLI:
+
 ```bash
 wrangler secret put AUTH_SECRET
 wrangler secret put AUTH_GITHUB_ID
 wrangler secret put AUTH_GITHUB_SECRET
+wrangler secret put AUTH_URL
 ```
+
+Secrets persist across deploys — you only need to set them once.
 
 ### 3. Apply migrations and deploy (manual)
 
@@ -162,7 +180,7 @@ npm run cf:deploy
 
 Connect your GitHub repo in the Cloudflare Dashboard (**Workers & Pages → your worker → Settings → Builds → Connect Git**). Every push to `main` will trigger an automatic build and deploy.
 
-Since `wrangler.toml` uses placeholder IDs (to keep the repo public), add your real IDs as **build variables** in the Cloudflare Dashboard (**Settings → Variables and Secrets**):
+Since `wrangler.toml` uses placeholder IDs (to keep the repo public), add your real IDs as **build variables** in the Cloudflare Dashboard (**Workers & Pages → chatdb → Settings → Build configuration → Edit → Build variables**):
 
 | Variable | Value |
 |---|---|
@@ -172,7 +190,7 @@ Since `wrangler.toml` uses placeholder IDs (to keep the repo public), add your r
 Then set the **Deploy command** to:
 
 ```bash
-sed -i "s/REPLACE_WITH_YOUR_D1_ID/$D1_DATABASE_ID/" wrangler.toml && sed -i "s/REPLACE_WITH_YOUR_KV_ID/$KV_NAMESPACE_ID/" wrangler.toml && npx wrangler deploy
+sed -i "s/REPLACE_WITH_YOUR_D1_ID/$D1_DATABASE_ID/" wrangler.toml && sed -i "s/REPLACE_WITH_YOUR_KV_ID/$KV_NAMESPACE_ID/" wrangler.toml && npx wrangler d1 execute chatdb-prod --remote --file db/migrations/0000_full.sql && npx wrangler deploy
 ```
 
 This substitutes the placeholders at build time without exposing your IDs in the repo.
