@@ -79,16 +79,16 @@ export default function SettingsPage() {
     <div className="flex h-screen bg-surface-elevated">
       <Sidebar activePage="settings" />
 
-      <main className="flex-1 overflow-y-auto">
-        <div className="px-8 py-8 flex gap-6">
-          {/* Tab sidebar */}
-          <div className="w-44 shrink-0">
-            <nav className="space-y-0.5">
+      <main className="flex-1 overflow-y-auto pt-14 md:pt-0">
+        <div className="px-4 py-5 md:px-8 md:py-8 flex flex-col md:flex-row gap-4 md:gap-6">
+          {/* Tab nav — horizontal scroll on mobile, vertical list on desktop */}
+          <div className="md:w-44 md:shrink-0">
+            <nav className="flex gap-1 overflow-x-auto pb-1 md:pb-0 md:block md:space-y-0.5">
               {([['mcp', '🔌 MCP Server'], ['tokens', '🔑 API Tokens'], ['apps', '📱 Applications']] as const).map(([id, label]) => (
                 <button
                   key={id}
                   onClick={() => setTab(id)}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`shrink-0 md:w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                     tab === id ? 'bg-accent-blue/10 text-accent-blue' : 'text-label-secondary hover:bg-surface-elevated'
                   }`}
                 >

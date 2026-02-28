@@ -90,10 +90,11 @@ function ChatsPageInner() {
     <div className="flex h-screen bg-surface-elevated">
       <Sidebar activePage="chats" filter={filter} onFilterChange={setFilter} />
 
-      {/* Main content */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="px-8 py-8">
-          <div className="flex items-center justify-between mb-6">
+      {/* Main content — pt-14 offsets the fixed mobile top bar */}
+      <main className="flex-1 overflow-y-auto pt-14 md:pt-0">
+        <div className="px-4 py-5 md:px-8 md:py-8">
+          {/* Header: title + search */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
             <h1 className="text-2xl font-bold text-label-primary tracking-tight">{activeLabel}</h1>
             <form
               onSubmit={(e) => {
@@ -108,81 +109,83 @@ function ChatsPageInner() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search conversations…"
-                className="pl-9 pr-4 py-2 w-64 bg-white border border-surface-separator rounded-xl text-sm text-label-primary placeholder:text-label-tertiary hover:border-accent-blue/30 focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/20 focus:outline-none transition-all"
+                className="pl-9 pr-4 py-2 w-full sm:w-64 bg-white border border-surface-separator rounded-xl text-sm text-label-primary placeholder:text-label-tertiary hover:border-accent-blue/30 focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/20 focus:outline-none transition-all"
               />
             </form>
           </div>
 
-          {/* Stats dashboard */}
+          {/* Stats dashboard — 2 cols on mobile, 4 on sm+ */}
           {stats && (
-            <div className="grid grid-cols-4 gap-4 mb-6">
-              <div className="bg-white rounded-2xl border border-surface-separator p-5">
-                <p className="text-sm text-label-secondary mb-1">Total Conversations</p>
-                <p className="text-3xl font-bold text-label-primary tracking-tight">{stats.totalConversations.toLocaleString()}</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4 mb-6">
+              <div className="bg-white rounded-2xl border border-surface-separator p-4 md:p-5">
+                <p className="text-xs md:text-sm text-label-secondary mb-1">Total Conversations</p>
+                <p className="text-2xl md:text-3xl font-bold text-label-primary tracking-tight">{stats.totalConversations.toLocaleString()}</p>
                 {stats.weekConversations > 0 && (
-                  <p className="text-sm text-accent-green mt-1">↑ {stats.weekConversations} this week</p>
+                  <p className="text-xs md:text-sm text-accent-green mt-1">↑ {stats.weekConversations} this week</p>
                 )}
               </div>
-              <div className="bg-white rounded-2xl border border-surface-separator p-5">
-                <p className="text-sm text-label-secondary mb-1">Total Messages</p>
-                <p className="text-3xl font-bold text-label-primary tracking-tight">{stats.totalMessages.toLocaleString()}</p>
+              <div className="bg-white rounded-2xl border border-surface-separator p-4 md:p-5">
+                <p className="text-xs md:text-sm text-label-secondary mb-1">Total Messages</p>
+                <p className="text-2xl md:text-3xl font-bold text-label-primary tracking-tight">{stats.totalMessages.toLocaleString()}</p>
                 {stats.weekMessages > 0 && (
-                  <p className="text-sm text-accent-green mt-1">↑ {stats.weekMessages} this week</p>
+                  <p className="text-xs md:text-sm text-accent-green mt-1">↑ {stats.weekMessages} this week</p>
                 )}
               </div>
-              <div className="bg-white rounded-2xl border border-surface-separator p-5">
-                <p className="text-sm text-label-secondary mb-1">Apps Used</p>
-                <p className="text-3xl font-bold text-label-primary tracking-tight">{stats.appsUsed}</p>
-                <p className="text-sm text-label-tertiary mt-1">
+              <div className="bg-white rounded-2xl border border-surface-separator p-4 md:p-5">
+                <p className="text-xs md:text-sm text-label-secondary mb-1">Apps Used</p>
+                <p className="text-2xl md:text-3xl font-bold text-label-primary tracking-tight">{stats.appsUsed}</p>
+                <p className="text-xs md:text-sm text-label-tertiary mt-1 truncate">
                   {stats.appIds.map((id) => appMap[id]?.displayName ?? id).join(' · ')}
                 </p>
               </div>
-              <div className="bg-white rounded-2xl border border-surface-separator p-5">
-                <p className="text-sm text-label-secondary mb-1">Avg. Messages / Chat</p>
-                <p className="text-3xl font-bold text-label-primary tracking-tight">{stats.avgMessagesPerChat}</p>
-                <p className="text-sm text-label-tertiary mt-1">Last 30 days</p>
+              <div className="bg-white rounded-2xl border border-surface-separator p-4 md:p-5">
+                <p className="text-xs md:text-sm text-label-secondary mb-1">Avg. Messages / Chat</p>
+                <p className="text-2xl md:text-3xl font-bold text-label-primary tracking-tight">{stats.avgMessagesPerChat}</p>
+                <p className="text-xs md:text-sm text-label-tertiary mt-1">Last 30 days</p>
               </div>
             </div>
           )}
 
           {/* Filter chips + date range */}
-          <div className="flex items-center gap-2 mb-6 flex-wrap">
-            <button
-              onClick={() => setFilter('all')}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                filter === 'all'
-                  ? 'bg-accent-blue text-white'
-                  : 'bg-white text-label-secondary border border-surface-separator hover:border-accent-blue/30'
-              }`}
-            >
-              All
-            </button>
-            <button
-              onClick={() => setFilter('starred')}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                filter === 'starred'
-                  ? 'bg-accent-blue text-white'
-                  : 'bg-white text-label-secondary border border-surface-separator hover:border-accent-blue/30'
-              }`}
-            >
-              ⭐ Starred
-            </button>
-            {apps.map((app) => (
+          <div className="mb-6 space-y-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <button
-                key={app.id}
-                onClick={() => setFilter(app.id)}
+                onClick={() => setFilter('all')}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                  filter === app.id
+                  filter === 'all'
                     ? 'bg-accent-blue text-white'
                     : 'bg-white text-label-secondary border border-surface-separator hover:border-accent-blue/30'
                 }`}
               >
-                {app.displayName}
+                All
               </button>
-            ))}
+              <button
+                onClick={() => setFilter('starred')}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                  filter === 'starred'
+                    ? 'bg-accent-blue text-white'
+                    : 'bg-white text-label-secondary border border-surface-separator hover:border-accent-blue/30'
+                }`}
+              >
+                ⭐ Starred
+              </button>
+              {apps.map((app) => (
+                <button
+                  key={app.id}
+                  onClick={() => setFilter(app.id)}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                    filter === app.id
+                      ? 'bg-accent-blue text-white'
+                      : 'bg-white text-label-secondary border border-surface-separator hover:border-accent-blue/30'
+                  }`}
+                >
+                  {app.displayName}
+                </button>
+              ))}
+            </div>
 
-            {/* Date range inputs */}
-            <div className="flex items-center gap-2 ml-auto">
+            {/* Date range — always on its own row for readability on mobile */}
+            <div className="flex items-center gap-2">
               <input
                 type="date"
                 value={startDate}
@@ -233,7 +236,7 @@ function ChatsPageInner() {
                   <Link
                     key={s.id}
                     href={`/chats/${s.id}${fromParam}`}
-                    className="block bg-white rounded-2xl border border-surface-separator p-5 hover:border-accent-blue/30 hover:shadow-md transition-all group"
+                    className="block bg-white rounded-2xl border border-surface-separator p-4 md:p-5 hover:border-accent-blue/30 hover:shadow-md transition-all group"
                   >
                     {/* Row 1: Title + Badge + Star */}
                     <div className="flex items-center gap-2.5 mb-1">

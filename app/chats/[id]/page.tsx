@@ -65,7 +65,7 @@ function ChatDetailPageInner() {
     <div className="flex h-screen bg-surface-elevated">
       <Sidebar activePage="chats" />
 
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto pt-14 md:pt-0">
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-label-tertiary">Loading…</div>
@@ -73,7 +73,7 @@ function ChatDetailPageInner() {
         ) : !session ? null : (
           <>
             {/* Top bar */}
-            <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-surface-separator px-6 py-4 flex items-center gap-4">
+            <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-surface-separator px-4 py-3 md:px-6 md:py-4 flex items-center gap-3 md:gap-4">
               <Link
                 href={backHref}
                 className="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-label-secondary hover:bg-surface-elevated hover:text-label-primary transition-colors"

@@ -7,7 +7,7 @@ export default async function LoginPage() {
   if (session) redirect('/chats');
 
   return (
-    <div className="min-h-screen bg-surface-elevated flex items-center justify-center p-6">
+    <div className="relative min-h-screen bg-surface-elevated flex items-center justify-center p-6">
       {/* Background gradient blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-blue-100 to-purple-100 opacity-40 blur-3xl" />
@@ -16,7 +16,7 @@ export default async function LoginPage() {
 
       <div className="relative w-full max-w-sm">
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-xl shadow-black/10 border border-black/[0.07] p-10">
+        <div className="bg-white rounded-2xl shadow-xl shadow-black/10 border border-black/[0.07] p-6 sm:p-10">
           {/* Logo */}
           <div className="flex items-center gap-3 mb-8">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-2xl shadow-lg shadow-blue-600/25">
