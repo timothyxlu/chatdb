@@ -12,6 +12,7 @@ import { resolveToken } from '@/lib/token-auth';
 import { sessions, messages, applications } from '@/lib/schema';
 import { getEmbedding } from '@/lib/embed';
 import { getVectorClient } from '@/lib/vector';
+import { ftsInsert } from '@/lib/fts';
 
 
 const IngestSchema = z.object({
@@ -103,6 +104,9 @@ export async function POST(req: NextRequest) {
       content: msg.content,
       createdAt,
     });
+
+    // Index for FTS5 with Chinese word segmentation
+    try { await ftsInsert(database, msgId, msg.content); } catch { /* non-fatal */ }
 
     try {
       const values = await getEmbedding(msg.content, env.AI);

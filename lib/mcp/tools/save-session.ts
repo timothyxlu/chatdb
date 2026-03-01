@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { sessions, messages, applications } from '@/lib/schema';
 import { getEmbedding } from '@/lib/embed';
 import { getVectorClient } from '@/lib/vector';
+import { ftsInsert } from '@/lib/fts';
 
 const MessageSchema = z.object({
   role: z.enum(['user', 'assistant']).describe('Who sent this message'),
@@ -73,6 +74,9 @@ export function registerSaveSession(
           content: msg.content,
           createdAt,
         });
+
+        // Index for FTS5 with Chinese word segmentation
+        try { await ftsInsert(database, msgId, msg.content); } catch { /* non-fatal */ }
 
         // Embed and queue for vector upsert
         try {
