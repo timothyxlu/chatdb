@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { messages, sessions } from '@/lib/schema';
 import { getEmbedding } from '@/lib/embed';
 import { getVectorClient } from '@/lib/vector';
+import { ftsInsert } from '@/lib/fts';
 
 const AddMessageSchema = z.object({
   session_id: z.string().uuid(),
@@ -44,6 +45,9 @@ export function registerAddMessage(
       }
 
       await database.insert(messages).values({ id: msgId, sessionId: session_id, role, content, createdAt });
+
+      // Index for FTS5 with Chinese word segmentation
+      try { await ftsInsert(database, msgId, content); } catch { /* non-fatal */ }
 
       // Update session counters
       await database

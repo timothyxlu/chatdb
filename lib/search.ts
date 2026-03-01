@@ -6,6 +6,7 @@ import type { Db } from './db';
 import { messages, sessions } from './schema';
 import { getEmbedding } from './embed';
 import { getVectorClient } from './vector';
+import { segmentQuery, cleanSnippet } from './tokenize';
 
 export interface SearchResult {
   sessionId: string;
@@ -44,7 +45,11 @@ async function ftsSearch(
   database: Db,
   opts: { userId: string; query: string; limit: number; appId?: string }
 ): Promise<Array<{ messageId: string; sessionId: string; snippet: string }>> {
-  const { userId, query, limit, appId } = opts;
+  const { userId, limit, appId } = opts;
+
+  // Segment Chinese text in the query for word-level FTS matching
+  const ftsQuery = segmentQuery(opts.query);
+  if (!ftsQuery) return [];
 
   // Drizzle doesn't support FTS5 virtual tables natively, so use raw SQL.
   // Use .all() (not .run()) — .run() discards SELECT results in libsql/turso.
@@ -52,13 +57,13 @@ async function ftsSearch(
 
   const rows = await database.all<{ message_id: string; session_id: string; snippet: string }>(sql`
     SELECT
-      m.id          AS message_id,
-      m.session_id  AS session_id,
+      fts.message_id AS message_id,
+      m.session_id   AS session_id,
       snippet(messages_fts, 0, '<mark>', '</mark>', '…', 24) AS snippet
     FROM   messages_fts fts
-    JOIN   messages  m ON m.rowid = fts.rowid
+    JOIN   messages  m ON m.id = fts.message_id
     JOIN   sessions  s ON s.id = m.session_id
-    WHERE  messages_fts MATCH ${query}
+    WHERE  messages_fts MATCH ${ftsQuery}
       AND  s.user_id = ${userId}
       ${sql.raw(appFilter)}
     ORDER  BY rank
@@ -68,7 +73,7 @@ async function ftsSearch(
   return rows.map((r) => ({
     messageId: r.message_id,
     sessionId: r.session_id,
-    snippet: r.snippet,
+    snippet: cleanSnippet(r.snippet),
   }));
 }
 

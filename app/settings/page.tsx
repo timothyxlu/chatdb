@@ -6,7 +6,7 @@ import type { Application, Token } from '@/lib/types';
 import { timeAgo, BADGE_PALETTE } from '@/lib/ui';
 
 export default function SettingsPage() {
-  const [tab, setTab] = useState<'mcp' | 'tokens' | 'apps'>('mcp');
+  const [tab, setTab] = useState<'mcp' | 'tokens' | 'apps' | 'data'>('mcp');
   const [tokens, setTokens] = useState<Token[]>([]);
   const [newTokenName, setNewTokenName] = useState('');
   const [newTokenValue, setNewTokenValue] = useState<string | null>(null);
@@ -16,6 +16,8 @@ export default function SettingsPage() {
   const [editingColor, setEditingColor] = useState<Record<string, number>>({});
   const [savedApp, setSavedApp] = useState<string | null>(null);
   const [mcpUrl, setMcpUrl] = useState('');
+  const [rebuilding, setRebuilding] = useState(false);
+  const [rebuildResult, setRebuildResult] = useState<{ ok: boolean; message: string } | null>(null);
 
   useEffect(() => {
     setMcpUrl(`${window.location.origin}/mcp`);
@@ -78,6 +80,21 @@ export default function SettingsPage() {
     setTimeout(() => setSavedApp(null), 2000);
   };
 
+  const rebuildFts = async () => {
+    setRebuilding(true);
+    setRebuildResult(null);
+    try {
+      const res = await fetch('/api/admin/rebuild-fts', { method: 'POST' });
+      const data = await res.json() as { rebuilt?: boolean; messages_indexed?: number; error?: string };
+      if (!res.ok) throw new Error(data.error ?? 'Request failed');
+      setRebuildResult({ ok: true, message: `Done — ${data.messages_indexed ?? 0} messages indexed` });
+    } catch (err) {
+      setRebuildResult({ ok: false, message: String(err instanceof Error ? err.message : err) });
+    } finally {
+      setRebuilding(false);
+    }
+  };
+
   const saveAppColor = async (appId: string, colorIdx: number) => {
     setEditingColor((prev) => ({ ...prev, [appId]: colorIdx }));
     const res = await fetch(`/api/applications/${appId}`, {
@@ -100,7 +117,7 @@ export default function SettingsPage() {
           {/* Tab nav — horizontal scroll on mobile, vertical list on desktop */}
           <div className="md:w-44 md:shrink-0">
             <nav className="flex gap-1 overflow-x-auto pb-1 md:pb-0 md:block md:space-y-0.5">
-              {([['mcp', '🔌 MCP Server'], ['tokens', '🔑 API Tokens'], ['apps', '📱 Applications']] as const).map(([id, label]) => (
+              {([['mcp', '🔌 MCP Server'], ['tokens', '🔑 API Tokens'], ['apps', '📱 Applications'], ['data', '🗄️ Data']] as const).map(([id, label]) => (
                 <button
                   key={id}
                   onClick={() => setTab(id)}
@@ -303,6 +320,47 @@ export default function SettingsPage() {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── Data ── */}
+            {tab === 'data' && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-lg font-bold text-label-primary mb-1">Data</h2>
+                  <p className="text-sm text-label-secondary">
+                    Manage your search index and data maintenance tasks.
+                  </p>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-surface-separator p-5 space-y-4">
+                  <div>
+                    <label className="text-xs font-semibold text-label-tertiary uppercase tracking-widest">Search Index</label>
+                    <p className="text-sm text-label-secondary mt-1.5">
+                      Rebuild the full-text search index with Chinese word segmentation. This re-processes all messages and may take a moment for large databases.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={rebuildFts}
+                      disabled={rebuilding}
+                      className="text-sm font-semibold text-white bg-accent-blue hover:bg-accent-blue/90 disabled:opacity-50 rounded-xl px-4 py-2 transition-colors flex items-center gap-2"
+                    >
+                      {rebuilding && (
+                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                      )}
+                      {rebuilding ? 'Rebuilding…' : 'Rebuild FTS Index'}
+                    </button>
+                    {rebuildResult && (
+                      <span className={`text-xs font-medium ${rebuildResult.ok ? 'text-accent-green' : 'text-red-500'}`}>
+                        {rebuildResult.message}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
