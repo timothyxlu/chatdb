@@ -69,9 +69,9 @@ function SearchPageInner() {
     <div className="flex h-screen bg-surface-elevated">
       <Sidebar activePage="search" />
 
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto pt-14 md:pt-0">
         {/* Search bar */}
-        <div className="bg-white border-b border-surface-separator px-6 py-4">
+        <div className="bg-white border-b border-surface-separator px-4 py-4 md:px-6">
           <form onSubmit={handleSubmit} className="max-w-2xl">
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-label-tertiary">🔍</span>
@@ -86,7 +86,7 @@ function SearchPageInner() {
           </form>
         </div>
 
-        <div className="px-8 py-8">
+        <div className="px-4 py-5 md:px-8 md:py-8">
           {searching && (
             <div className="text-center text-label-tertiary py-12">Searching…</div>
           )}
