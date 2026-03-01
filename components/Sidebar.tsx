@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import type { Application, UserProfile } from '@/lib/types';
+import { BADGE_PALETTE } from '@/lib/ui';
 
 interface SidebarProps {
   /** Which page is currently active — highlights the correct nav item */
@@ -131,19 +132,24 @@ export default function Sidebar({ activePage, filter, onFilterChange }: SidebarP
               <p className="text-xs font-semibold text-label-tertiary uppercase tracking-widest px-3 py-2 mt-4">
                 Applications
               </p>
-              {apps.map((app) =>
-                isChatsPage ? (
+              {apps.map((app, i) => {
+                const palette = BADGE_PALETTE[app.colorIndex ?? (i % BADGE_PALETTE.length)];
+                const iconStyle = { backgroundColor: palette.swatch + '33', color: palette.swatch };
+                const icon = app.iconUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={app.iconUrl} alt="" className="w-4 h-4 rounded-sm object-contain shrink-0" />
+                ) : (
+                  <span className="w-4 h-4 rounded-sm flex items-center justify-center text-[10px] font-bold shrink-0" style={iconStyle}>
+                    {app.displayName.charAt(0).toUpperCase()}
+                  </span>
+                );
+                return isChatsPage ? (
                   <button
                     key={app.id}
                     onClick={() => { onFilterChange(app.id); closeMenu(); }}
                     className={navItemClass(filter === app.id)}
                   >
-                    {app.iconUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={app.iconUrl} alt="" className="w-4 h-4 rounded-sm object-contain shrink-0" />
-                    ) : (
-                      <span className="w-4 h-4 rounded-sm bg-surface-elevated flex items-center justify-center text-[10px] font-bold text-label-tertiary shrink-0">{app.displayName.charAt(0).toUpperCase()}</span>
-                    )}
+                    {icon}
                     {app.displayName}
                   </button>
                 ) : (
@@ -153,16 +159,11 @@ export default function Sidebar({ activePage, filter, onFilterChange }: SidebarP
                     className={navItemClass(false)}
                     onClick={closeMenu}
                   >
-                    {app.iconUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={app.iconUrl} alt="" className="w-4 h-4 rounded-sm object-contain shrink-0" />
-                    ) : (
-                      <span className="w-4 h-4 rounded-sm bg-surface-elevated flex items-center justify-center text-[10px] font-bold text-label-tertiary shrink-0">{app.displayName.charAt(0).toUpperCase()}</span>
-                    )}
+                    {icon}
                     {app.displayName}
                   </Link>
-                )
-              )}
+                );
+              })}
             </>
           )}
 

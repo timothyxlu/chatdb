@@ -21,6 +21,7 @@ export async function GET() {
       id: applications.id,
       displayName: applications.displayName,
       iconUrl: applications.iconUrl,
+      colorIndex: applications.colorIndex,
     })
     .from(applications)
     .innerJoin(

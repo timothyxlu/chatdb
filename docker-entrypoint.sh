@@ -19,10 +19,9 @@ echo "→ Applying SQL migrations …"
 # are SQLite-specific constructs not supported by Drizzle's schema DSL.
 # All statements use IF NOT EXISTS so this is idempotent.
 DB_FILE="${SQLITE_PATH#file:}"
-# 0000_init.sql — core schema (tables, indexes)
-sqlite3 "$DB_FILE" < /app/db/migrations/0000_init.sql
-# 0001_fts.sql — FTS5 virtual table, triggers, and index rebuild
-sqlite3 "$DB_FILE" < /app/db/migrations/0001_fts.sql
+for f in /app/db/migrations/*.sql; do
+  sqlite3 "$DB_FILE" < "$f" || true
+done
 echo "  ✓ Done"
 
 echo ""

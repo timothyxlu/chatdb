@@ -13,7 +13,7 @@
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:migrate:local": "drizzle-kit migrate",
-    "db:migrate:prod": "wrangler d1 execute chatdb-prod --remote --file db/migrations/0000_init.sql && wrangler d1 execute chatdb-prod --remote --file db/migrations/0001_fts.sql",
+    "db:migrate:prod": "for f in db/migrations/*.sql; do npx wrangler d1 execute chatdb-prod --remote --file \"$f\" || true; done",
     "db:studio": "drizzle-kit studio",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down"

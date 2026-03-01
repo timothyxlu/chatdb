@@ -16,7 +16,10 @@ export interface SearchResult {
   content: string;
   snippet: string;          // HTML with <mark> tags for keyword matches
   score: number;            // RRF merged score
-  createdAt: number;
+  createdAt: number;        // message createdAt
+  sessionCreatedAt: number;
+  sessionMessageCount: number;
+  sessionUpdatedAt: number;
 }
 
 export interface SearchOptions {
@@ -149,6 +152,9 @@ export async function hybridSearch(
       role: messages.role,
       content: messages.content,
       createdAt: messages.createdAt,
+      sessionCreatedAt: sessions.createdAt,
+      sessionMessageCount: sessions.messageCount,
+      sessionUpdatedAt: sessions.updatedAt,
     })
     .from(messages)
     .innerJoin(sessions, eq(messages.sessionId, sessions.id))
@@ -168,6 +174,9 @@ export async function hybridSearch(
         snippet: mergedData.snippet || row.content.slice(0, 200),
         score: mergedData.rrfScore,
         createdAt: row.createdAt,
+        sessionCreatedAt: row.sessionCreatedAt,
+        sessionMessageCount: row.sessionMessageCount,
+        sessionUpdatedAt: row.sessionUpdatedAt,
       };
     })
     .sort((a, b) => b.score - a.score);

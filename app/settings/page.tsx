@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Sidebar from '@/components/Sidebar';
 import type { Application, Token } from '@/lib/types';
-import { timeAgo } from '@/lib/ui';
+import { timeAgo, BADGE_PALETTE } from '@/lib/ui';
 
 export default function SettingsPage() {
   const [tab, setTab] = useState<'mcp' | 'tokens' | 'apps'>('mcp');
@@ -13,11 +13,13 @@ export default function SettingsPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [apps, setApps] = useState<Application[]>([]);
   const [editingApp, setEditingApp] = useState<Record<string, string>>({});
+  const [editingColor, setEditingColor] = useState<Record<string, number>>({});
   const [savedApp, setSavedApp] = useState<string | null>(null);
+  const [mcpUrl, setMcpUrl] = useState('');
 
-  const mcpUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/mcp`
-    : 'https://chatdb.example.com/mcp';
+  useEffect(() => {
+    setMcpUrl(`${window.location.origin}/mcp`);
+  }, []);
 
   useEffect(() => {
     if (tab === 'tokens') {
@@ -27,6 +29,7 @@ export default function SettingsPage() {
         const list = (d as { applications: Application[] }).applications ?? [];
         setApps(list);
         setEditingApp(Object.fromEntries(list.map((a) => [a.id, a.displayName])));
+        setEditingColor(Object.fromEntries(list.map((a, i) => [a.id, a.colorIndex ?? (i % BADGE_PALETTE.length)])));
       });
     }
   }, [tab]);
@@ -71,6 +74,19 @@ export default function SettingsPage() {
     });
     if (!res.ok) return;
     setApps((prev) => prev.map((a) => a.id === appId ? { ...a, displayName: name } : a));
+    setSavedApp(appId);
+    setTimeout(() => setSavedApp(null), 2000);
+  };
+
+  const saveAppColor = async (appId: string, colorIdx: number) => {
+    setEditingColor((prev) => ({ ...prev, [appId]: colorIdx }));
+    const res = await fetch(`/api/applications/${appId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ colorIndex: colorIdx }),
+    });
+    if (!res.ok) return;
+    setApps((prev) => prev.map((a) => a.id === appId ? { ...a, colorIndex: colorIdx } : a));
     setSavedApp(appId);
     setTimeout(() => setSavedApp(null), 2000);
   };
@@ -168,6 +184,23 @@ export default function SettingsPage() {
                           onKeyDown={(e) => { if (e.key === 'Enter') saveAppName(app.id); }}
                           className="w-full bg-surface-elevated rounded-lg border border-surface-separator px-3 py-1.5 text-sm text-label-primary focus:outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/20 transition-all"
                         />
+                        {/* Color swatch picker */}
+                        <div className="flex gap-1.5 mt-2">
+                          {BADGE_PALETTE.map((p, i) => (
+                            <button
+                              key={i}
+                              type="button"
+                              onClick={() => saveAppColor(app.id, i)}
+                              title={`Color ${i + 1}`}
+                              className={`w-4 h-4 rounded-full transition-transform ${
+                                editingColor[app.id] === i
+                                  ? 'ring-2 ring-offset-1 ring-gray-500 scale-110'
+                                  : 'hover:scale-110'
+                              }`}
+                              style={{ backgroundColor: p.swatch }}
+                            />
+                          ))}
+                        </div>
                       </div>
                       {savedApp === app.id && (
                         <span className="text-xs font-medium text-accent-green shrink-0">Saved</span>
