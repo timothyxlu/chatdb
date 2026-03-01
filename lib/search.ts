@@ -7,6 +7,7 @@ import { messages, sessions } from './schema';
 import { getEmbedding } from './embed';
 import { getVectorClient } from './vector';
 import { segmentQuery, cleanSnippet } from './tokenize';
+import { ftsNeedsRebuild, ftsRebuildAll } from './fts';
 
 export interface SearchResult {
   sessionId: string;
@@ -69,6 +70,15 @@ async function ftsSearch(
     ORDER  BY rank
     LIMIT  ${limit}
   `);
+
+  // If no FTS results, check whether the index is empty and needs rebuilding
+  if (rows.length === 0) {
+    const needsRebuild = await ftsNeedsRebuild(database).catch(() => false);
+    if (needsRebuild) {
+      console.warn('[search] FTS index is empty but messages exist — triggering async rebuild');
+      ftsRebuildAll(database).catch((err) => console.error('[search] FTS rebuild failed:', err));
+    }
+  }
 
   return rows.map((r) => ({
     messageId: r.message_id,

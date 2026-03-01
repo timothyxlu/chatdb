@@ -57,3 +57,13 @@ export async function ftsRebuildAll(database: Db): Promise<number> {
 
   return total;
 }
+
+/**
+ * Check whether the FTS index needs rebuilding.
+ * Returns true when messages exist but the FTS table is empty.
+ */
+export async function ftsNeedsRebuild(database: Db): Promise<boolean> {
+  const [fts] = await database.all<{ cnt: number }>(sql`SELECT count(*) as cnt FROM messages_fts`);
+  const [msg] = await database.all<{ cnt: number }>(sql`SELECT count(*) as cnt FROM messages`);
+  return (msg?.cnt ?? 0) > 0 && (fts?.cnt ?? 0) === 0;
+}

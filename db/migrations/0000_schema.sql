@@ -1,6 +1,7 @@
 -- ─────────────────────────────────────────────────────────────────────────────
--- ChatDB — init schema
+-- ChatDB — unified idempotent schema
 -- Compatible with both local SQLite and Cloudflare D1.
+-- Safe to run multiple times without data loss.
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- ── Core tables ──────────────────────────────────────────────────────────────
@@ -16,7 +17,8 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS applications (
   id           TEXT PRIMARY KEY,
   display_name TEXT NOT NULL,
-  icon_url     TEXT
+  icon_url     TEXT,
+  color_index  INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS sessions (
@@ -81,27 +83,12 @@ CREATE TABLE IF NOT EXISTS oauth_codes (
 
 CREATE INDEX IF NOT EXISTS idx_oauth_codes_client ON oauth_codes(client_id);
 
--- ── FTS5 full-text search ────────────────────────────────────────────────────
+-- ── FTS5 full-text search (standalone, managed by application code) ─────────
+-- No DROP TABLE — preserves existing index data across re-runs.
+-- FTS is managed by lib/fts.ts (with Chinese segmentation via Intl.Segmenter).
 
 CREATE VIRTUAL TABLE IF NOT EXISTS messages_fts USING fts5(
   content,
-  content='messages',
-  content_rowid='rowid'
+  message_id UNINDEXED,
+  tokenize='unicode61'
 );
-
-CREATE TRIGGER IF NOT EXISTS messages_ai AFTER INSERT ON messages BEGIN
-  INSERT INTO messages_fts(rowid, content) VALUES (new.rowid, new.content);
-END;
-
-CREATE TRIGGER IF NOT EXISTS messages_ad AFTER DELETE ON messages BEGIN
-  INSERT INTO messages_fts(messages_fts, rowid, content)
-  VALUES ('delete', old.rowid, old.content);
-END;
-
-CREATE TRIGGER IF NOT EXISTS messages_au AFTER UPDATE ON messages BEGIN
-  INSERT INTO messages_fts(messages_fts, rowid, content)
-  VALUES ('delete', old.rowid, old.content);
-  INSERT INTO messages_fts(rowid, content) VALUES (new.rowid, new.content);
-END;
-
-INSERT INTO messages_fts(messages_fts) VALUES('rebuild');
