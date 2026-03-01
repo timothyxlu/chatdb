@@ -8,6 +8,39 @@
 
 ---
 
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="docs/UI/screenshot-login.png" alt="Sign in screen" width="480"/><br/>
+      <sub><b>Sign In</b> — GitHub OAuth, one click to get started</sub>
+    </td>
+    <td align="center">
+      <img src="docs/UI/screenshot-chat-list.png" alt="Chat list" width="480"/><br/>
+      <sub><b>All Chats</b> — browse conversations across Claude, ChatGPT, Gemini and more</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="docs/UI/screenshot-chat-detail.png" alt="Chat detail" width="480"/><br/>
+      <sub><b>Chat Detail</b> — read the full conversation with syntax-highlighted code blocks</sub>
+    </td>
+    <td align="center">
+      <img src="docs/UI/screenshot-search.png" alt="Search" width="480"/><br/>
+      <sub><b>Search</b> — hybrid full-text + semantic search with highlighted matches</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2">
+      <img src="docs/UI/screenshot-settings.png" alt="Settings" width="480"/><br/>
+      <sub><b>Settings</b> — MCP server URL, API tokens, and profile</sub>
+    </td>
+  </tr>
+</table>
+
+---
+
 ## Features
 
 - **Conversation archive** — capture and browse sessions from any AI application
