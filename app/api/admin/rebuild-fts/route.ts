@@ -4,9 +4,10 @@
 // and re-inserts into the FTS5 table. Use after running the 0002 migration,
 // or whenever you need to re-index.
 //
-// Auth: Bearer token (same chatdb_tk_… tokens used by MCP / Ingest).
+// Auth: session (web UI) OR Bearer token (CLI / scripts).
 
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/auth';
 import { getCfEnv } from '@/lib/cf-env';
 import { resolveToken } from '@/lib/token-auth';
 import { db } from '@/lib/db';
@@ -14,8 +15,14 @@ import { ftsRebuildAll } from '@/lib/fts';
 
 export async function POST(req: NextRequest) {
   const env = await getCfEnv();
-  const tokenCtx = await resolveToken(req.headers.get('Authorization'), env.DB);
-  if (!tokenCtx) {
+
+  // Accept either session auth (web UI) or Bearer token (CLI)
+  const session = await auth();
+  const tokenCtx = !session?.user?.id
+    ? await resolveToken(req.headers.get('Authorization'), env.DB)
+    : null;
+
+  if (!session?.user?.id && !tokenCtx) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
