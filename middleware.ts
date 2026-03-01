@@ -17,8 +17,14 @@ export default auth((req) => {
   const isPublic = PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix));
   if (isPublic) return NextResponse.next();
 
-  // Static assets handled separately
-  if (pathname.startsWith('/_next') || pathname.startsWith('/favicon.ico')) {
+  // Static assets & PWA files handled separately
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/favicon') ||
+    pathname === '/manifest.json' ||
+    pathname === '/sw.js' ||
+    pathname.startsWith('/icons/')
+  ) {
     return NextResponse.next();
   }
 
@@ -33,5 +39,5 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|api/signout).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|favicon.svg|sw\\.js|manifest\\.json|icons/|api/signout).*)'],
 };
