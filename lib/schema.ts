@@ -17,6 +17,7 @@ export const applications = sqliteTable('applications', {
   id: text('id').primaryKey(),             // e.g. "claude", "chatgpt"
   displayName: text('display_name').notNull(),
   iconUrl: text('icon_url'),
+  colorIndex: integer('color_index'),      // index into BADGE_PALETTE; null = auto-assign by position
 });
 
 // ── Sessions ─────────────────────────────────────────────────────────────────

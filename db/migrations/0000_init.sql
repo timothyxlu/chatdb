@@ -1,9 +1,9 @@
 -- ─────────────────────────────────────────────────────────────────────────────
--- Chats — initial schema
--- Compatible with both local SQLite and Cloudflare D1 (production).
--- FTS5 virtual table and triggers live in 0001_fts_sqlite.sql and are
--- applied locally only; D1 does not support the fts5 module.
+-- ChatDB — init schema
+-- Compatible with both local SQLite and Cloudflare D1.
 -- ─────────────────────────────────────────────────────────────────────────────
+
+-- ── Core tables ──────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS users (
   id           TEXT PRIMARY KEY,
@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS sessions (
   title         TEXT,
   message_count INTEGER NOT NULL DEFAULT 0,
   source_url    TEXT,
+  starred       INTEGER NOT NULL DEFAULT 0,
   created_at    INTEGER NOT NULL,
   updated_at    INTEGER NOT NULL
 );
@@ -57,28 +58,50 @@ CREATE TABLE IF NOT EXISTS api_tokens (
 CREATE INDEX IF NOT EXISTS idx_tokens_user_id    ON api_tokens(user_id);
 CREATE INDEX IF NOT EXISTS idx_tokens_hash       ON api_tokens(token_hash);
 
--- ── OAuth Clients (Dynamic Client Registration — RFC 7591) ───────────────────
+-- ── OAuth (Dynamic Client Registration — RFC 7591) ──────────────────────────
+
 CREATE TABLE IF NOT EXISTS oauth_clients (
-  id                  TEXT PRIMARY KEY,         -- client_id (UUID)
-  client_secret_hash  TEXT,                     -- SHA-256(secret); NULL = PKCE-only
-  redirect_uris       TEXT NOT NULL,            -- JSON array of allowed redirect URIs
+  id                  TEXT PRIMARY KEY,
+  client_secret_hash  TEXT,
+  redirect_uris       TEXT NOT NULL,
   client_name         TEXT NOT NULL,
   client_uri          TEXT,
   created_at          INTEGER NOT NULL
 );
 
--- ── OAuth Authorization Codes (short-lived, single-use) ──────────────────────
 CREATE TABLE IF NOT EXISTS oauth_codes (
-  code             TEXT PRIMARY KEY,            -- 48 random hex chars
+  code             TEXT PRIMARY KEY,
   client_id        TEXT NOT NULL REFERENCES oauth_clients(id) ON DELETE CASCADE,
   user_id          TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   redirect_uri     TEXT NOT NULL,
-  code_challenge   TEXT,                        -- PKCE S256 challenge; NULL = no PKCE
-  expires_at       INTEGER NOT NULL,            -- unix ms
-  used_at          INTEGER                      -- NULL = unused
+  code_challenge   TEXT,
+  expires_at       INTEGER NOT NULL,
+  used_at          INTEGER
 );
 
 CREATE INDEX IF NOT EXISTS idx_oauth_codes_client ON oauth_codes(client_id);
 
--- Applications are auto-created by MCP tools (save_session / create_session)
--- using the api_tokens.name of the connecting client. No seed data needed.
+-- ── FTS5 full-text search ────────────────────────────────────────────────────
+
+CREATE VIRTUAL TABLE IF NOT EXISTS messages_fts USING fts5(
+  content,
+  content='messages',
+  content_rowid='rowid'
+);
+
+CREATE TRIGGER IF NOT EXISTS messages_ai AFTER INSERT ON messages BEGIN
+  INSERT INTO messages_fts(rowid, content) VALUES (new.rowid, new.content);
+END;
+
+CREATE TRIGGER IF NOT EXISTS messages_ad AFTER DELETE ON messages BEGIN
+  INSERT INTO messages_fts(messages_fts, rowid, content)
+  VALUES ('delete', old.rowid, old.content);
+END;
+
+CREATE TRIGGER IF NOT EXISTS messages_au AFTER UPDATE ON messages BEGIN
+  INSERT INTO messages_fts(messages_fts, rowid, content)
+  VALUES ('delete', old.rowid, old.content);
+  INSERT INTO messages_fts(rowid, content) VALUES (new.rowid, new.content);
+END;
+
+INSERT INTO messages_fts(messages_fts) VALUES('rebuild');

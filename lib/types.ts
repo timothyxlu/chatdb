@@ -4,6 +4,7 @@ export interface Application {
   id: string;
   displayName: string;
   iconUrl: string | null;
+  colorIndex: number | null;
 }
 
 export interface Session {
@@ -35,6 +36,10 @@ export interface SearchResult {
   role: 'user' | 'assistant';
   snippet: string;
   score: number;
+  createdAt: number;
+  sessionCreatedAt: number;
+  sessionMessageCount: number;
+  sessionUpdatedAt: number;
 }
 
 export interface Stats {

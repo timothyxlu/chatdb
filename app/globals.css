@@ -22,6 +22,15 @@
   }
 }
 
+/* Search snippet keyword highlights */
+mark {
+  background: #fef08a;
+  color: #713f12;
+  border-radius: 2px;
+  padding: 0 1px;
+  font-style: normal;
+}
+
 /* Markdown content styles */
 .markdown {
   line-height: 1.65;

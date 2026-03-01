@@ -15,8 +15,11 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
 
   const { id } = await params;
   const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
-  if (typeof body.displayName !== 'string' || !body.displayName.trim()) {
-    return NextResponse.json({ error: 'Body must include { displayName: string }' }, { status: 400 });
+
+  const hasDisplayName = typeof body.displayName === 'string' && body.displayName.trim();
+  const hasColorIndex = body.colorIndex !== undefined;
+  if (!hasDisplayName && !hasColorIndex) {
+    return NextResponse.json({ error: 'Body must include displayName or colorIndex' }, { status: 400 });
   }
 
   const env = await getCfEnv();
@@ -31,10 +34,11 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
 
   if (!userSession) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  await database
-    .update(applications)
-    .set({ displayName: body.displayName.trim() })
-    .where(eq(applications.id, id));
+  const patch: { displayName?: string; colorIndex?: number | null } = {};
+  if (hasDisplayName) patch.displayName = (body.displayName as string).trim();
+  if (hasColorIndex) patch.colorIndex = typeof body.colorIndex === 'number' ? body.colorIndex : null;
 
-  return NextResponse.json({ id, displayName: body.displayName.trim() });
+  await database.update(applications).set(patch).where(eq(applications.id, id));
+
+  return NextResponse.json({ id, ...patch });
 }

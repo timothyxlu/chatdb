@@ -2,24 +2,32 @@
 
 import type { Application } from './types';
 
-/** Rotating palette for app badges when no iconUrl is available */
-export const BADGE_COLORS = [
-  'bg-orange-100 text-orange-700',
-  'bg-green-100 text-green-700',
-  'bg-blue-100 text-blue-700',
-  'bg-purple-100 text-purple-700',
-  'bg-yellow-100 text-yellow-700',
-  'bg-pink-100 text-pink-700',
-  'bg-gray-100 text-gray-600',
+/** Rotating palette for app badges. `classes` = Tailwind, `swatch` = hex for color picker. */
+export const BADGE_PALETTE = [
+  { classes: 'bg-orange-100 text-orange-700 border border-orange-200', swatch: '#f97316' },
+  { classes: 'bg-green-100 text-green-700 border border-green-200',  swatch: '#22c55e' },
+  { classes: 'bg-blue-100 text-blue-700 border border-blue-200',     swatch: '#3b82f6' },
+  { classes: 'bg-purple-100 text-purple-700 border border-purple-200', swatch: '#a855f7' },
+  { classes: 'bg-yellow-100 text-yellow-700 border border-yellow-200', swatch: '#eab308' },
+  { classes: 'bg-pink-100 text-pink-700 border border-pink-200',     swatch: '#ec4899' },
+  { classes: 'bg-gray-100 text-gray-600 border border-gray-200',     swatch: '#6b7280' },
 ];
 
 /** Build a lookup map from app ID → display info */
 export function buildAppMap(apps: Application[]) {
   return Object.fromEntries(
-    apps.map((app, i) => [
-      app.id,
-      { displayName: app.displayName, iconUrl: app.iconUrl, color: BADGE_COLORS[i % BADGE_COLORS.length] },
-    ]),
+    apps.map((app, i) => {
+      const palette = BADGE_PALETTE[app.colorIndex ?? (i % BADGE_PALETTE.length)];
+      return [
+        app.id,
+        {
+          displayName: app.displayName,
+          iconUrl: app.iconUrl,
+          color: palette.classes,
+          swatch: palette.swatch,
+        },
+      ];
+    }),
   );
 }
 
