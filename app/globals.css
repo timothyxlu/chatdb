@@ -23,14 +23,12 @@
   }
 }
 
-/* Date input — ensure Android Chrome renders picker content */
+/* Date input — Android Chrome compatibility
+   DO NOT use appearance:none — it strips the native shadow DOM on Android,
+   causing the date text inside the input to disappear (blank picker). */
 input[type="date"] {
-  -webkit-appearance: none;
-  appearance: none;
   min-height: 2rem;
-}
-input[type="date"]::-webkit-calendar-picker-indicator {
-  opacity: 1;
+  min-width: 10ch;
 }
 
 /* PWA install banner animation */
