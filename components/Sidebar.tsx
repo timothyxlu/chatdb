@@ -126,6 +126,16 @@ export default function Sidebar({ activePage, filter, onFilterChange }: SidebarP
             </Link>
           )}
 
+          {isChatsPage ? (
+            <button onClick={() => { onFilterChange('archived'); closeMenu(); }} className={navItemClass(filter === 'archived')}>
+              🗂️ Archived
+            </button>
+          ) : (
+            <Link href="/chats?filter=archived" className={navItemClass(false)} onClick={closeMenu}>
+              🗂️ Archived
+            </Link>
+          )}
+
           {/* ── Applications ── */}
           {apps.length > 0 && (
             <>

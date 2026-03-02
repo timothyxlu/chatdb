@@ -13,6 +13,7 @@ export interface Session {
   title: string | null;
   messageCount: number;
   starred: number;
+  archived: number;
   createdAt: number;
   updatedAt: number;
 }

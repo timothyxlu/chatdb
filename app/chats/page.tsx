@@ -48,6 +48,7 @@ function ChatsPageInner() {
   useEffect(() => {
     const params = new URLSearchParams();
     if (filter === 'starred') params.set('starred', '1');
+    else if (filter === 'archived') params.set('archived', '1');
     else if (filter !== 'all') params.set('app', filter);
     const since = dateStrToMs(startDate);
     if (since !== null) params.set('since', String(since));
@@ -67,7 +68,7 @@ function ChatsPageInner() {
   const appMap = useMemo(() => buildAppMap(apps), [apps]);
 
   const activeLabel =
-    filter === 'all' ? 'All Chats' : filter === 'starred' ? 'Starred' : (appMap[filter]?.displayName ?? filter);
+    filter === 'all' ? 'All Chats' : filter === 'starred' ? 'Starred' : filter === 'archived' ? 'Archived' : (appMap[filter]?.displayName ?? filter);
 
   async function toggleStar(e: React.MouseEvent, sessionId: string, current: number) {
     e.preventDefault();
@@ -84,6 +85,20 @@ function ChatsPageInner() {
         .map((s) => (s.id === sessionId ? { ...s, starred: next ? 1 : 0 } : s))
         .filter((s) => (filter === 'starred' ? s.starred === 1 : true))
     );
+  }
+
+  async function toggleArchive(e: React.MouseEvent, sessionId: string, current: number) {
+    e.preventDefault();
+    e.stopPropagation();
+    const next = !current;
+    const res = await fetch(`/api/chats/${sessionId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ archived: next }),
+    });
+    if (!res.ok) return;
+    // Remove from current view (archiving removes from All/Starred, unarchiving removes from Archived)
+    setSessions((prev) => prev.filter((s) => s.id !== sessionId));
   }
 
   return (
@@ -168,6 +183,16 @@ function ChatsPageInner() {
                 }`}
               >
                 ⭐ Starred
+              </button>
+              <button
+                onClick={() => setFilter('archived')}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                  filter === 'archived'
+                    ? 'bg-accent-blue text-white'
+                    : 'bg-white text-label-secondary border border-surface-separator hover:border-accent-blue/30'
+                }`}
+              >
+                🗂️ Archived
               </button>
               {apps.map((app) => (
                 <button
@@ -266,6 +291,17 @@ function ChatsPageInner() {
                         title={s.starred ? 'Unstar' : 'Star'}
                       >
                         {s.starred ? '★' : '☆'}
+                      </button>
+                      <button
+                        onClick={(e) => toggleArchive(e, s.id, s.archived)}
+                        className={`p-0.5 rounded transition-colors shrink-0 ${
+                          s.archived
+                            ? 'text-label-secondary hover:text-label-primary'
+                            : 'text-label-tertiary opacity-0 group-hover:opacity-100 hover:text-label-secondary'
+                        }`}
+                        title={s.archived ? 'Unarchive' : 'Archive'}
+                      >
+                        {s.archived ? '📤' : '📥'}
                       </button>
                     </div>
                     {/* Row 2: Preview */}
