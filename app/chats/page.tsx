@@ -21,6 +21,9 @@ function ChatsPageInner() {
   const [endDate, setEndDate] = useState<string>(() => searchParams.get('endDate') ?? '');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [confirmDeleteSession, setConfirmDeleteSession] = useState<SessionWithPreview | null>(null);
+  const [deletePending, setDeletePending] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const router = useRouter();
 
   // Build the `from` param so pressing ← in the detail page restores this page's state
@@ -99,6 +102,42 @@ function ChatsPageInner() {
     if (!res.ok) return;
     // Remove from current view (archiving removes from All/Starred, unarchiving removes from Archived)
     setSessions((prev) => prev.filter((s) => s.id !== sessionId));
+  }
+
+  function promptDelete(e: React.MouseEvent, chat: SessionWithPreview) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (deletePending) return;
+    setDeleteError(null);
+    setConfirmDeleteSession(chat);
+  }
+
+  function closeDeleteConfirm() {
+    if (deletePending) return;
+    setDeleteError(null);
+    setConfirmDeleteSession(null);
+  }
+
+  async function confirmDelete() {
+    if (!confirmDeleteSession || deletePending) return;
+    setDeletePending(true);
+    setDeleteError(null);
+
+    const res = await fetch(`/api/chats/${confirmDeleteSession.id}`, { method: 'DELETE' });
+    if (!res.ok) {
+      let message = 'Failed to permanently delete conversation.';
+      try {
+        const data = (await res.json()) as { error?: string };
+        if (data.error) message = data.error;
+      } catch {}
+      setDeleteError(message);
+      setDeletePending(false);
+      return;
+    }
+
+    setSessions((prev) => prev.filter((s) => s.id !== confirmDeleteSession.id));
+    setDeletePending(false);
+    setConfirmDeleteSession(null);
   }
 
   return (
@@ -303,6 +342,15 @@ function ChatsPageInner() {
                       >
                         {s.archived ? '📤' : '📥'}
                       </button>
+                      {filter === 'archived' && (
+                        <button
+                          onClick={(e) => promptDelete(e, s)}
+                          className="p-0.5 rounded transition-colors shrink-0 text-label-secondary hover:text-red-500"
+                          title="Delete permanently"
+                        >
+                          🗑️
+                        </button>
+                      )}
                     </div>
                     {/* Row 2: Preview */}
                     {s.preview && (
@@ -323,6 +371,49 @@ function ChatsPageInner() {
           )}
         </div>
       </main>
+
+      {confirmDeleteSession && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40" onClick={closeDeleteConfirm} />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-chat-title"
+            className="relative w-full max-w-md bg-white rounded-2xl border border-surface-separator shadow-xl p-5"
+          >
+            <h2 id="delete-chat-title" className="text-lg font-bold text-label-primary">
+              Permanently delete chat?
+            </h2>
+            <p className="text-sm text-label-secondary mt-2">
+              This will permanently remove the chat, its messages, FTS5 index rows, and embeddings.
+            </p>
+            <p className="text-sm text-label-tertiary mt-2 truncate">
+              {confirmDeleteSession.title ?? 'Untitled conversation'}
+            </p>
+
+            {deleteError && (
+              <p className="text-xs text-red-500 mt-3">{deleteError}</p>
+            )}
+
+            <div className="mt-5 flex items-center justify-end gap-2">
+              <button
+                onClick={closeDeleteConfirm}
+                disabled={deletePending}
+                className="text-sm font-medium text-label-secondary hover:text-label-primary disabled:opacity-50 transition-colors rounded-lg px-3 py-2"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={deletePending}
+                className="text-sm font-semibold text-white bg-red-500 hover:bg-red-600 disabled:opacity-50 rounded-xl px-4 py-2 transition-colors"
+              >
+                {deletePending ? 'Deleting…' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

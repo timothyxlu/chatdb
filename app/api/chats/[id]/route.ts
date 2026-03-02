@@ -1,6 +1,6 @@
 // GET    /api/chats/[id] — fetch session + messages
 // PATCH  /api/chats/[id] — update starred / archived
-// DELETE /api/chats/[id] — delete session + vectors
+// DELETE /api/chats/[id] — delete session + FTS + vectors
 
 import { NextRequest, NextResponse } from 'next/server';
 import { eq, and, asc } from 'drizzle-orm';
@@ -116,11 +116,18 @@ export async function DELETE(req: NextRequest, { params }: RouteContext) {
 
   if (!chatSession) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  // Get message IDs for vector deletion
+  // Get message IDs for FTS/vector deletion
   const msgs = await database
     .select({ id: messages.id })
     .from(messages)
     .where(eq(messages.sessionId, id));
+
+  // Delete FTS entries (non-fatal)
+  for (const msg of msgs) {
+    try {
+      await ftsDelete(database, msg.id);
+    } catch {}
+  }
 
   // Delete vectors (non-fatal)
   if (msgs.length > 0) {
