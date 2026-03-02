@@ -8,6 +8,7 @@
   html {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     -webkit-font-smoothing: antialiased;
+    color-scheme: light;
   }
 
   body {
@@ -20,6 +21,16 @@
     scrollbar-width: thin;
     scrollbar-color: #AEAEB2 transparent;
   }
+}
+
+/* Date input — ensure Android Chrome renders picker content */
+input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  min-height: 2rem;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 1;
 }
 
 /* PWA install banner animation */
