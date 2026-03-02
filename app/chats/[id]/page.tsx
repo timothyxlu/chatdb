@@ -104,14 +104,14 @@ function ChatDetailPageInner() {
             </div>
 
             {/* Messages */}
-            <div className="max-w-2xl mx-auto px-4 py-8 space-y-4">
+            <div className="max-w-4xl mx-auto px-4 md:px-8 py-8 space-y-6">
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div
-                    className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm ${
+                    className={`text-sm ${
                       msg.role === 'user'
-                        ? 'bg-accent-blue text-white rounded-br-md'
-                        : 'bg-white border border-surface-separator text-label-primary rounded-bl-md shadow-sm'
+                        ? 'max-w-[80%] rounded-2xl rounded-br-md px-4 py-3 bg-accent-blue text-white'
+                        : 'w-full text-label-primary'
                     }`}
                   >
                     <Markdown content={msg.content} className={msg.role === 'user' ? 'markdown-user' : ''} />
