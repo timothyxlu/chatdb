@@ -7,7 +7,7 @@ import { eq, and, asc } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { getCfEnv } from '@/lib/cf-env';
-import { sessions, messages } from '@/lib/schema';
+import { sessions, messages, applications } from '@/lib/schema';
 import { getVectorClient } from '@/lib/vector';
 import { ftsDelete, ftsInsert } from '@/lib/fts';
 
@@ -138,6 +138,17 @@ export async function DELETE(req: NextRequest, { params }: RouteContext) {
 
   // Delete session (cascades to messages via FK)
   await database.delete(sessions).where(eq(sessions.id, id));
+
+  // Remove application row when no sessions reference it anymore
+  const [remainingForApp] = await database
+    .select({ id: sessions.id })
+    .from(sessions)
+    .where(eq(sessions.appId, chatSession.appId))
+    .limit(1);
+
+  if (!remainingForApp) {
+    await database.delete(applications).where(eq(applications.id, chatSession.appId));
+  }
 
   return NextResponse.json({ deleted: id });
 }
