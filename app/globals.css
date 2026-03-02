@@ -31,6 +31,26 @@
   animation: slide-up 0.3s ease-out;
 }
 
+/* Fix date picker rendering on Android Chrome */
+input[type="date"] {
+  color-scheme: light;
+  min-height: 2.25rem;
+}
+input[type="date"]::-webkit-datetime-edit,
+input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+input[type="date"]::-webkit-datetime-edit-text,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field {
+  display: inline-block;
+  color: inherit;
+  padding: 0;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+  color: inherit;
+  opacity: 0.6;
+}
+
 /* Search snippet keyword highlights */
 mark {
   background: #fef08a;
