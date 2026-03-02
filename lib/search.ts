@@ -66,6 +66,7 @@ async function ftsSearch(
     JOIN   sessions  s ON s.id = m.session_id
     WHERE  messages_fts MATCH ${ftsQuery}
       AND  s.user_id = ${userId}
+      AND  s.archived = 0
       ${sql.raw(appFilter)}
     ORDER  BY rank
     LIMIT  ${limit}

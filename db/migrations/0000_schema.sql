@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS sessions (
   message_count INTEGER NOT NULL DEFAULT 0,
   source_url    TEXT,
   starred       INTEGER NOT NULL DEFAULT 0,
+  archived      INTEGER NOT NULL DEFAULT 0,
   created_at    INTEGER NOT NULL,
   updated_at    INTEGER NOT NULL
 );

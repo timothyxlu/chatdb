@@ -1,4 +1,5 @@
-// GET  /api/chats/[id] — fetch session + messages
+// GET    /api/chats/[id] — fetch session + messages
+// PATCH  /api/chats/[id] — update starred / archived
 // DELETE /api/chats/[id] — delete session + vectors
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -8,6 +9,7 @@ import { db } from '@/lib/db';
 import { getCfEnv } from '@/lib/cf-env';
 import { sessions, messages } from '@/lib/schema';
 import { getVectorClient } from '@/lib/vector';
+import { ftsDelete, ftsInsert } from '@/lib/fts';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -43,8 +45,14 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
 
   const { id } = await params;
   const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
-  if (typeof body.starred !== 'boolean') {
-    return NextResponse.json({ error: 'Body must include { starred: boolean }' }, { status: 400 });
+
+  const hasStarred = typeof body.starred === 'boolean';
+  const hasArchived = typeof body.archived === 'boolean';
+  if (!hasStarred && !hasArchived) {
+    return NextResponse.json(
+      { error: 'Body must include { starred?: boolean, archived?: boolean }' },
+      { status: 400 },
+    );
   }
 
   const env = await getCfEnv();
@@ -58,12 +66,37 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
 
   if (!chatSession) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  await database
-    .update(sessions)
-    .set({ starred: body.starred ? 1 : 0 })
-    .where(eq(sessions.id, id));
+  // Build update payload
+  const updates: Record<string, number> = {};
+  if (hasStarred) updates.starred = body.starred ? 1 : 0;
+  if (hasArchived) updates.archived = body.archived ? 1 : 0;
 
-  return NextResponse.json({ id, starred: body.starred });
+  await database.update(sessions).set(updates).where(eq(sessions.id, id));
+
+  // Archive / unarchive: manage FTS and vector embeddings
+  if (hasArchived) {
+    const msgs = await database
+      .select({ id: messages.id, content: messages.content })
+      .from(messages)
+      .where(eq(messages.sessionId, id));
+
+    if (body.archived) {
+      // Archiving → delete FTS entries and vector embeddings
+      for (const msg of msgs) {
+        try { await ftsDelete(database, msg.id); } catch {}
+      }
+      if (msgs.length > 0) {
+        try { await getVectorClient(env.VECTORIZE).delete(msgs.map((m) => m.id)); } catch {}
+      }
+    } else {
+      // Unarchiving → re-insert FTS entries (vectors not restored — too expensive)
+      for (const msg of msgs) {
+        try { await ftsInsert(database, msg.id, msg.content); } catch {}
+      }
+    }
+  }
+
+  return NextResponse.json({ id, ...updates });
 }
 
 export async function DELETE(req: NextRequest, { params }: RouteContext) {

@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const app = searchParams.get('app') ?? undefined;
   const starred = searchParams.get('starred');
+  const archived = searchParams.get('archived');
   const since = searchParams.get('since');
   const until = searchParams.get('until');
   const limit = Math.min(parseInt(searchParams.get('limit') ?? '20'), 100);
@@ -30,6 +31,11 @@ export async function GET(req: NextRequest) {
   const conditions = [eq(sessions.userId, userId)];
   if (app) conditions.push(eq(sessions.appId, app));
   if (starred === '1') conditions.push(eq(sessions.starred, 1));
+  if (archived === '1') {
+    conditions.push(eq(sessions.archived, 1));
+  } else {
+    conditions.push(eq(sessions.archived, 0));
+  }
   if (since) conditions.push(gte(sessions.createdAt, parseInt(since)));
   if (until) conditions.push(lte(sessions.createdAt, parseInt(until)));
 

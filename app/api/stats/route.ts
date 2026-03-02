@@ -17,7 +17,7 @@ export async function GET() {
   const env = await getCfEnv();
   const database = db(env.DB);
 
-  // All-time totals
+  // All-time totals (exclude archived)
   const [totals] = await database
     .select({
       totalConversations: count(sessions.id),
@@ -25,15 +25,15 @@ export async function GET() {
       appsUsed: countDistinct(sessions.appId),
     })
     .from(sessions)
-    .where(eq(sessions.userId, userId));
+    .where(and(eq(sessions.userId, userId), eq(sessions.archived, 0)));
 
-  // Distinct app IDs
+  // Distinct app IDs (exclude archived)
   const appRows = await database
     .selectDistinct({ appId: sessions.appId })
     .from(sessions)
-    .where(eq(sessions.userId, userId));
+    .where(and(eq(sessions.userId, userId), eq(sessions.archived, 0)));
 
-  // This-week stats (sessions & messages created in the last 7 days)
+  // This-week stats (exclude archived)
   const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const [weekTotals] = await database
     .select({
@@ -41,7 +41,7 @@ export async function GET() {
       messages: sum(sessions.messageCount),
     })
     .from(sessions)
-    .where(and(eq(sessions.userId, userId), gte(sessions.createdAt, weekAgo)));
+    .where(and(eq(sessions.userId, userId), eq(sessions.archived, 0), gte(sessions.createdAt, weekAgo)));
 
   const totalConversations = totals?.totalConversations ?? 0;
   const totalMessages = Number(totals?.totalMessages ?? 0);

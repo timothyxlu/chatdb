@@ -56,6 +56,17 @@ function ChatDetailPageInner() {
     if (res.ok) setSession((prev) => prev ? { ...prev, starred: next ? 1 : 0 } : prev);
   }
 
+  async function toggleArchive() {
+    if (!session) return;
+    const next = !session.archived;
+    const res = await fetch(`/api/chats/${session.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ archived: next }),
+    });
+    if (res.ok) setSession((prev) => prev ? { ...prev, archived: next ? 1 : 0 } : prev);
+  }
+
   const app = session ? appMap[session.appId] : null;
   const date = session
     ? new Date(session.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
@@ -92,6 +103,15 @@ function ChatDetailPageInner() {
                     title={session.starred ? 'Unstar' : 'Star'}
                   >
                     {session.starred ? '★' : '☆'}
+                  </button>
+                  <button
+                    onClick={toggleArchive}
+                    className={`text-sm shrink-0 transition-colors ${
+                      session.archived ? 'text-label-secondary hover:text-label-primary' : 'text-label-tertiary hover:text-label-secondary'
+                    }`}
+                    title={session.archived ? 'Unarchive' : 'Archive'}
+                  >
+                    {session.archived ? '📤' : '📥'}
                   </button>
                 </div>
                 <div className="flex items-center gap-2 mt-0.5">

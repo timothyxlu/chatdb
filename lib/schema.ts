@@ -33,6 +33,7 @@ export const sessions = sqliteTable('sessions', {
   title: text('title'),
   messageCount: integer('message_count').notNull().default(0),
   starred: integer('starred').notNull().default(0),  // 0 = unstarred, 1 = starred
+  archived: integer('archived').notNull().default(0), // 0 = active, 1 = archived
   sourceUrl: text('source_url'),           // for deduplication (ingest API)
   createdAt: integer('created_at').notNull(),
   updatedAt: integer('updated_at').notNull(),
