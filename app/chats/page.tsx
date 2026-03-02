@@ -190,14 +190,14 @@ function ChatsPageInner() {
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="bg-white border border-surface-separator rounded-lg px-3 py-1.5 text-xs text-label-secondary hover:border-accent-blue/30 focus:border-accent-blue focus:outline-none transition-colors"
+                className="bg-white border border-surface-separator rounded-lg px-3 py-2 text-sm md:text-xs text-label-secondary hover:border-accent-blue/30 focus:border-accent-blue focus:outline-none transition-colors"
               />
               <span className="text-xs text-label-tertiary">–</span>
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="bg-white border border-surface-separator rounded-lg px-3 py-1.5 text-xs text-label-secondary hover:border-accent-blue/30 focus:border-accent-blue focus:outline-none transition-colors"
+                className="bg-white border border-surface-separator rounded-lg px-3 py-2 text-sm md:text-xs text-label-secondary hover:border-accent-blue/30 focus:border-accent-blue focus:outline-none transition-colors"
               />
               {(startDate || endDate) && (
                 <button
