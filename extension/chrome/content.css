@@ -67,6 +67,22 @@
   opacity: 1;
 }
 
+.chatdb-sidebar-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  margin-right: 4px;
+  line-height: 0;
+}
+
+.chatdb-sidebar-check svg {
+  width: 14px;
+  height: 14px;
+}
+
 .chatdb-toast {
   position: fixed;
   bottom: 24px;

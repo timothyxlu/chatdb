@@ -383,6 +383,66 @@
     }
   }
 
+  // ── Sidebar sync badges ───────────────────────────────
+
+  const SIDEBAR_CHECK_SVG = `<svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="6" cy="6" r="6" fill="#16a34a"/>
+    <path d="M3.5 6.2 5.2 7.9 8.5 4.5" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+
+  let sidebarLookupPending = false;
+
+  async function checkSidebarLookup() {
+    if (sidebarLookupPending) return;
+
+    const links = document.querySelectorAll('a.conversation');
+    if (links.length === 0) return;
+
+    // Collect full URLs from sidebar conversation links
+    const urlMap = new Map(); // fullUrl → link element
+    for (const link of links) {
+      const href = link.getAttribute('href');
+      if (!href) continue;
+      const fullUrl = new URL(href, location.origin).href;
+      urlMap.set(fullUrl, link);
+    }
+
+    if (urlMap.size === 0) return;
+
+    sidebarLookupPending = true;
+    try {
+      const resp = await chrome.runtime.sendMessage({
+        type: 'chatdb_batch_lookup',
+        source_urls: Array.from(urlMap.keys()),
+      });
+
+      if (!resp?.ok || !resp.data?.results) return;
+
+      for (const [url, result] of Object.entries(resp.data.results)) {
+        if (!result) continue;
+        const link = urlMap.get(url);
+        if (!link) continue;
+        // Already has badge — skip
+        if (link.querySelector('.chatdb-sidebar-check')) continue;
+
+        const badge = document.createElement('span');
+        badge.className = 'chatdb-sidebar-check';
+        badge.innerHTML = SIDEBAR_CHECK_SVG;
+        // Insert before the conversation title
+        const titleEl = link.querySelector('.conversation-title');
+        if (titleEl) {
+          titleEl.parentElement.insertBefore(badge, titleEl);
+        } else {
+          link.prepend(badge);
+        }
+      }
+    } catch {
+      // Silently ignore — sidebar badges are best-effort
+    } finally {
+      sidebarLookupPending = false;
+    }
+  }
+
   // ── SPA navigation handling ─────────────────────────────
 
   let lastUrl = location.href;
@@ -414,11 +474,20 @@
 
   // Gemini is an SPA, elements may not exist yet. Use MutationObserver.
   // Also detects URL changes that pushState interception may miss (e.g. sidebar clicks).
+  let sidebarScanTimer = null;
   const observer = new MutationObserver(() => {
-    if (!isConversationPage()) return;
-    const btn = document.querySelector('.chatdb-btn');
-    if (!btn || btn.dataset.url !== location.href) {
-      injectButton();
+    if (isConversationPage()) {
+      const btn = document.querySelector('.chatdb-btn');
+      if (!btn || btn.dataset.url !== location.href) {
+        injectButton();
+      }
+    }
+    // Debounce sidebar scan — DOM mutations fire frequently
+    if (!sidebarScanTimer) {
+      sidebarScanTimer = setTimeout(() => {
+        sidebarScanTimer = null;
+        checkSidebarLookup();
+      }, 2000);
     }
   });
 
@@ -430,5 +499,6 @@
   setTimeout(() => {
     console.log('[ChatDB] Retrying inject, share btn:', !!document.querySelector('button[aria-label="Share conversation"]'));
     injectButton();
+    checkSidebarLookup();
   }, 2000);
 })();

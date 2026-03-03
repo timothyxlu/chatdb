@@ -32,6 +32,10 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     handleLookup(message, sendResponse);
     return true;
   }
+  if (message.type === 'chatdb_batch_lookup') {
+    handleBatchLookup(message, sendResponse);
+    return true;
+  }
   return false;
 });
 
@@ -51,6 +55,35 @@ async function handleIngest(message, sendResponse) {
         Authorization: `Bearer ${config.token}`,
       },
       body: JSON.stringify(message.payload),
+    });
+
+    const data = await resp.json();
+    if (!resp.ok) {
+      sendResponse({ error: data.error || `HTTP ${resp.status}` });
+    } else {
+      sendResponse({ ok: true, data });
+    }
+  } catch (err) {
+    sendResponse({ error: err.message });
+  }
+}
+
+// POST /api/ingest/lookup — batch lookup
+async function handleBatchLookup(message, sendResponse) {
+  try {
+    const config = await getConfig();
+    if (!config) {
+      sendResponse({ error: 'not_configured' });
+      return;
+    }
+
+    const resp = await fetch(`${config.url}/api/ingest/lookup`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${config.token}`,
+      },
+      body: JSON.stringify({ source_urls: message.source_urls }),
     });
 
     const data = await resp.json();
