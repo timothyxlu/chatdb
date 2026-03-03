@@ -17,6 +17,11 @@
       </defs>
     </svg>`;
 
+  const CHECK_SVG = `<svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="6" cy="6" r="6" fill="#16a34a"/>
+    <path d="M3.5 6.2 5.2 7.9 8.5 4.5" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+
   // ── Helpers ──────────────────────────────────────────────
 
   function toast(msg, type = 'ok') {
@@ -226,6 +231,38 @@
     return { title, messages, sourceUrl: location.href };
   }
 
+  // ── Lookup status ──────────────────────────────────────
+
+  function formatTime(ms) {
+    const d = new Date(ms);
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+      + ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function markSynced(btn, scrapedAt) {
+    if (btn.querySelector('.chatdb-check')) return;
+    const badge = document.createElement('span');
+    badge.className = 'chatdb-check';
+    badge.innerHTML = CHECK_SVG;
+    btn.appendChild(badge);
+    btn.title = `Saved to ChatDB · ${formatTime(scrapedAt)}`;
+  }
+
+  async function checkLookup(btn) {
+    if (!isConversationPage()) return;
+    try {
+      const resp = await chrome.runtime.sendMessage({
+        type: 'chatdb_lookup',
+        source_url: location.href,
+      });
+      if (resp?.ok && resp.data?.exists) {
+        markSynced(btn, resp.data.scraped_at || resp.data.scraped_at === 0 ? resp.data.scraped_at : Date.now());
+      }
+    } catch {
+      // Silently ignore — lookup is best-effort
+    }
+  }
+
   // ── Send to ChatDB ─────────────────────────────────────
 
   async function saveToBackend() {
@@ -260,6 +297,8 @@
       } else {
         toast(`Saved ${resp.data?.message_count || messages.length} messages to ChatDB`);
       }
+      // Show checkmark after successful save
+      if (btn) markSynced(btn, Date.now());
     } catch (err) {
       toast(`Failed: ${err.message}`, 'err');
     } finally {
@@ -309,6 +348,7 @@
       const btn = createButton();
       const shareWrapper = shareBtn.closest('.buttons-container.share') || shareBtn.parentElement;
       shareWrapper.parentElement.insertBefore(btn, shareWrapper);
+      checkLookup(btn);
       return;
     }
 
@@ -322,7 +362,9 @@
     for (const sel of fallbackSelectors) {
       const container = document.querySelector(sel);
       if (container) {
-        container.prepend(createButton());
+        const btn = createButton();
+        container.prepend(btn);
+        checkLookup(btn);
         return;
       }
     }
