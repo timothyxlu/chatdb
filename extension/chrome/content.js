@@ -284,6 +284,7 @@
         app: 'Gemini',
         title,
         messages,
+        overwrite: true,
         metadata: {
           source_url: sourceUrl,
           scraped_at: Math.floor(Date.now() / 1000),
@@ -300,10 +301,11 @@
         throw new Error(resp.error);
       }
 
-      if (resp.data?.created === false) {
-        toast('Already saved to ChatDB');
+      const count = resp.data?.message_count || messages.length;
+      if (resp.data?.overwritten) {
+        toast(`Updated ${count} messages in ChatDB`);
       } else {
-        toast(`Saved ${resp.data?.message_count || messages.length} messages to ChatDB`);
+        toast(`Saved ${count} messages to ChatDB`);
       }
       // Show checkmark after successful save
       if (btn) markSynced(btn, Date.now());
