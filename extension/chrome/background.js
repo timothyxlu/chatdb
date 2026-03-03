@@ -7,48 +7,117 @@ chrome.runtime.onInstalled.addListener((details) => {
   }
 });
 
-// Listen for ingest requests from content scripts
+// Shared helper: get cleaned URL and token from storage
+async function getConfig() {
+  const { chatdb_url, chatdb_token } = await chrome.storage.sync.get([
+    'chatdb_url',
+    'chatdb_token',
+  ]);
+
+  if (!chatdb_url || !chatdb_token) return null;
+
+  return {
+    url: chatdb_url.trim().replace(/[^\x20-\x7E]/g, ''),
+    token: chatdb_token.trim().replace(/[^\x20-\x7E]/g, ''),
+  };
+}
+
+// Listen for messages from content scripts
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (message.type !== 'chatdb_ingest') return false;
-
-  // Handle async response
-  (async () => {
-    try {
-      const { chatdb_url, chatdb_token } = await chrome.storage.sync.get([
-        'chatdb_url',
-        'chatdb_token',
-      ]);
-
-      if (!chatdb_url || !chatdb_token) {
-        sendResponse({ error: 'Please configure ChatDB in the extension popup' });
-        return;
-      }
-
-      // Strip non-ASCII chars (copy-paste can introduce invisible Unicode)
-      const cleanUrl = chatdb_url.trim().replace(/[^\x20-\x7E]/g, '');
-      const cleanToken = chatdb_token.trim().replace(/[^\x20-\x7E]/g, '');
-
-      const resp = await fetch(`${cleanUrl}/api/ingest`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${cleanToken}`,
-        },
-        body: JSON.stringify(message.payload),
-      });
-
-      const data = await resp.json();
-
-      if (!resp.ok) {
-        sendResponse({ error: data.error || `HTTP ${resp.status}` });
-      } else {
-        sendResponse({ ok: true, data });
-      }
-    } catch (err) {
-      sendResponse({ error: err.message });
-    }
-  })();
-
-  // Return true to keep the message channel open for async sendResponse
-  return true;
+  if (message.type === 'chatdb_ingest') {
+    handleIngest(message, sendResponse);
+    return true;
+  }
+  if (message.type === 'chatdb_lookup') {
+    handleLookup(message, sendResponse);
+    return true;
+  }
+  if (message.type === 'chatdb_batch_lookup') {
+    handleBatchLookup(message, sendResponse);
+    return true;
+  }
+  return false;
 });
+
+// POST /api/ingest
+async function handleIngest(message, sendResponse) {
+  try {
+    const config = await getConfig();
+    if (!config) {
+      sendResponse({ error: 'Please configure ChatDB in the extension popup' });
+      return;
+    }
+
+    const resp = await fetch(`${config.url}/api/ingest`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${config.token}`,
+      },
+      body: JSON.stringify(message.payload),
+    });
+
+    const data = await resp.json();
+    if (!resp.ok) {
+      sendResponse({ error: data.error || `HTTP ${resp.status}` });
+    } else {
+      sendResponse({ ok: true, data });
+    }
+  } catch (err) {
+    sendResponse({ error: err.message });
+  }
+}
+
+// POST /api/ingest/lookup — batch lookup
+async function handleBatchLookup(message, sendResponse) {
+  try {
+    const config = await getConfig();
+    if (!config) {
+      sendResponse({ error: 'not_configured' });
+      return;
+    }
+
+    const resp = await fetch(`${config.url}/api/ingest/lookup`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${config.token}`,
+      },
+      body: JSON.stringify({ source_urls: message.source_urls }),
+    });
+
+    const data = await resp.json();
+    if (!resp.ok) {
+      sendResponse({ error: data.error || `HTTP ${resp.status}` });
+    } else {
+      sendResponse({ ok: true, data });
+    }
+  } catch (err) {
+    sendResponse({ error: err.message });
+  }
+}
+
+// GET /api/ingest/lookup?source_url=…
+async function handleLookup(message, sendResponse) {
+  try {
+    const config = await getConfig();
+    if (!config) {
+      sendResponse({ error: 'not_configured' });
+      return;
+    }
+
+    const url = `${config.url}/api/ingest/lookup?source_url=${encodeURIComponent(message.source_url)}`;
+    const resp = await fetch(url, {
+      headers: { Authorization: `Bearer ${config.token}` },
+    });
+
+    const data = await resp.json();
+    if (!resp.ok) {
+      sendResponse({ error: data.error || `HTTP ${resp.status}` });
+    } else {
+      sendResponse({ ok: true, data });
+    }
+  } catch (err) {
+    sendResponse({ error: err.message });
+  }
+}

@@ -47,7 +47,7 @@
 - **Hybrid search** — full-text (FTS5) and semantic (vector) search fused with Reciprocal Rank Fusion
 - **MCP server** — Claude Desktop and other MCP clients can read and write your conversation history directly
 - **OAuth 2.0 Dynamic Client Registration** — MCP clients connect with zero configuration via RFC 7591 DCR + PKCE
-- **Ingest API** — REST endpoint for browser extensions to push conversations automatically
+- **Browser extension** — one-click save from ChatGPT, Gemini, DeepSeek, and more AI apps
 - **API tokens** — create named tokens for each client; revoke individually
 - **GitHub OAuth** — single sign-in for the web UI
 - **Edge-first** — runs on Cloudflare Workers; scales to zero when idle
