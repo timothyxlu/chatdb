@@ -322,11 +322,14 @@
   }
 
   function injectButton() {
-    // Don't inject if already present
-    if (document.querySelector('.chatdb-btn')) return;
-
     // Don't inject on non-conversation pages
     if (!isConversationPage()) return;
+
+    // Already present for this URL — skip
+    const existing = document.querySelector('.chatdb-btn');
+    if (existing && existing.dataset.url === location.href) return;
+    // URL changed — remove stale button so we re-inject with fresh lookup
+    if (existing) existing.remove();
 
     // Find the share button in Gemini's top bar
     // Gemini uses: button[aria-label="Share conversation"] inside div.buttons-container.share
@@ -346,6 +349,7 @@
     if (shareBtn) {
       // Insert ChatDB button before the share button's container
       const btn = createButton();
+      btn.dataset.url = location.href;
       const shareWrapper = shareBtn.closest('.buttons-container.share') || shareBtn.parentElement;
       shareWrapper.parentElement.insertBefore(btn, shareWrapper);
       checkLookup(btn);
@@ -363,6 +367,7 @@
       const container = document.querySelector(sel);
       if (container) {
         const btn = createButton();
+        btn.dataset.url = location.href;
         container.prepend(btn);
         checkLookup(btn);
         return;
@@ -400,8 +405,11 @@
   // ── Init ────────────────────────────────────────────────
 
   // Gemini is an SPA, elements may not exist yet. Use MutationObserver.
+  // Also detects URL changes that pushState interception may miss (e.g. sidebar clicks).
   const observer = new MutationObserver(() => {
-    if (isConversationPage() && !document.querySelector('.chatdb-btn')) {
+    if (!isConversationPage()) return;
+    const btn = document.querySelector('.chatdb-btn');
+    if (!btn || btn.dataset.url !== location.href) {
       injectButton();
     }
   });
