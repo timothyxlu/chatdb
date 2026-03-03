@@ -347,9 +347,9 @@
         const badge = document.createElement('span');
         badge.className = 'chatdb-sidebar-check';
         badge.innerHTML = SIDEBAR_CHECK_SVG;
-        // Insert before the title element
+        // Prepend inside the title element so it sits inline with the text
         if (item.titleEl) {
-          item.titleEl.parentElement.insertBefore(badge, item.titleEl);
+          item.titleEl.prepend(badge);
         } else {
           item.linkEl.prepend(badge);
         }
