@@ -35,6 +35,7 @@ export const sessions = sqliteTable('sessions', {
   starred: integer('starred').notNull().default(0),  // 0 = unstarred, 1 = starred
   archived: integer('archived').notNull().default(0), // 0 = active, 1 = archived
   sourceUrl: text('source_url'),           // for deduplication (ingest API)
+  scrapedAt: integer('scraped_at'),        // when the source was scraped (unix ms)
   createdAt: integer('created_at').notNull(),
   updatedAt: integer('updated_at').notNull(),
 });
