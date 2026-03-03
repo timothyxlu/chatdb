@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Privacy Policy | ChatDB Extension</title>
+    <meta name="description" content="Privacy Policy for ChatDB Chrome extension." />
+    <style>
+      :root {
+        --bg: #f6f8fc;
+        --text: #0f172a;
+        --muted: #475569;
+        --card: #ffffff;
+        --line: #dbe2f0;
+        --accent: #1d4ed8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        color: var(--text);
+        background: linear-gradient(180deg, #f7f9ff 0%, #eef3ff 100%);
+      }
+
+      .wrap {
+        width: min(860px, 92vw);
+        margin: 0 auto;
+        padding: 34px 0 50px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: clamp(18px, 3vw, 34px);
+        box-shadow: 0 12px 40px rgba(24, 38, 74, 0.08);
+      }
+
+      h1 {
+        margin-top: 0;
+        font-size: clamp(28px, 4vw, 40px);
+      }
+
+      h2 {
+        margin-top: 28px;
+        font-size: 20px;
+      }
+
+      p,
+      li {
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      ul {
+        margin: 8px 0 0;
+      }
+
+      a {
+        color: var(--accent);
+      }
+
+      .meta {
+        margin-bottom: 20px;
+        color: #64748b;
+        font-size: 14px;
+      }
+
+      .top-link {
+        display: inline-block;
+        margin-bottom: 16px;
+        text-decoration: none;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <a class="top-link" href="./">&larr; Back to Home</a>
+      <article class="card">
+        <h1>Privacy Policy</h1>
+        <div class="meta">Last updated: March 3, 2026</div>
+
+        <p>
+          ChatDB Extension is designed to help users save AI chat conversations into their own ChatDB
+          service. We keep data collection minimal and transparent.
+        </p>
+
+        <h2>Information We Process</h2>
+        <ul>
+          <li>Conversation content from supported AI chat pages when you explicitly trigger capture.</li>
+          <li>Basic metadata such as source URL, title, and timestamps for saved sessions.</li>
+          <li>Your ChatDB API token, stored locally in the extension to authenticate uploads.</li>
+        </ul>
+
+        <h2>How We Use Information</h2>
+        <ul>
+          <li>To upload selected conversation data to your self-hosted ChatDB instance.</li>
+          <li>To provide extension functionality, including manual capture and sync actions.</li>
+        </ul>
+
+        <h2>Data Sharing</h2>
+        <p>
+          We do not sell personal data and we do not share conversation data with third-party
+          advertisers. Data is sent only to the ChatDB server endpoint configured by you.
+        </p>
+
+        <h2>Data Retention</h2>
+        <p>
+          Data retention is controlled by your ChatDB deployment. You can delete sessions or revoke
+          tokens from your ChatDB settings at any time.
+        </p>
+
+        <h2>Security</h2>
+        <p>
+          We recommend using HTTPS for your ChatDB endpoint and rotating API tokens periodically. Keep
+          your browser and extension up to date.
+        </p>
+
+        <h2>Contact</h2>
+        <p>
+          If you have any questions about this Privacy Policy, contact:
+          <a href="mailto:admin@timothyxlu.xyz">admin@timothyxlu.xyz</a>
+        </p>
+      </article>
+    </div>
+  </body>
+</html>
