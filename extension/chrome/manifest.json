@@ -29,6 +29,12 @@
       "js": ["chatgpt.js", "content.js"],
       "css": ["content.css"],
       "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://chat.deepseek.com/*"],
+      "js": ["deepseek.js", "content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
     }
   ],
   "background": {
