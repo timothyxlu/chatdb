@@ -5,6 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Deploy to Cloudflare Workers](https://img.shields.io/badge/Deploy-Cloudflare%20Workers-F38020?logo=cloudflare)](https://developers.cloudflare.com/workers/)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=nextdotjs)](https://nextjs.org/)
+[![GitHub Pages](https://img.shields.io/website?url=https%3A%2F%2Ftimothyxlu.github.io%2Fchatdb%2F&label=GitHub%20Pages)](https://timothyxlu.github.io/chatdb/)
 
 ---
 
