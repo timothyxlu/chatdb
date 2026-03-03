@@ -3,34 +3,55 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <title>ChatDB Extension</title>
     <meta
       name="description"
       content="Save AI chats from ChatGPT, Gemini, and more into your private ChatDB archive."
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@500;600&family=Sora:wght@500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      (function () {
+        var saved = localStorage.getItem("chatdb_lang");
+        var lang = saved === "zh" || saved === "en" ? saved : "";
+        if (!lang) {
+          lang = (navigator.language || "").toLowerCase().startsWith("zh") ? "zh" : "en";
+        }
+        document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+      })();
+    </script>
     <style>
       :root {
-        --bg: #0a1224;
-        --bg-soft: #12203d;
-        --card: rgba(255, 255, 255, 0.08);
-        --line: rgba(255, 255, 255, 0.2);
-        --text: #ebf3ff;
-        --muted: #b3c1d9;
-        --blue: #57a1ff;
+        --bg: #f6f8fc;
+        --card: #ffffff;
+        --line: #dbe2f0;
+        --text: #0f172a;
+        --muted: #475569;
+        --blue: #1d4ed8;
       }
 
       * {
         box-sizing: border-box;
       }
 
+      html[lang="zh-CN"] .lang-en {
+        display: none;
+      }
+
+      html[lang="en"] .lang-zh {
+        display: none;
+      }
+
       body {
         margin: 0;
         font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
         color: var(--text);
-        background:
-          radial-gradient(1200px 500px at 15% -10%, #264f8f 0%, transparent 60%),
-          radial-gradient(1000px 420px at 95% 0%, #0f325c 0%, transparent 55%),
-          linear-gradient(180deg, var(--bg) 0%, #070c17 100%);
+        background: linear-gradient(180deg, #f7f9ff 0%, #eef3ff 100%);
         min-height: 100vh;
       }
 
@@ -47,15 +68,76 @@
       }
 
       .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
         font-size: 22px;
         font-weight: 700;
         letter-spacing: 0.4px;
       }
 
-      .nav a {
+      .brand-icon {
+        width: 28px;
+        height: 28px;
+        display: block;
+      }
+
+      .nav-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .lang-switch {
+        display: inline-flex;
+        align-items: center;
+        height: 40px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #ffffff;
+        padding: 0 8px;
+      }
+
+      .lang-switch button {
+        display: inline-flex;
+        align-items: center;
+        border: 0;
+        background: transparent;
         color: var(--muted);
+        font-size: 13px;
+        line-height: 1;
+        height: 100%;
+        padding: 0 4px;
+        cursor: pointer;
+      }
+
+      .lang-switch .sep {
+        color: #94a3b8;
+        font-size: 12px;
+      }
+
+      .lang-switch button.active {
+        color: var(--blue);
+        font-weight: 700;
+      }
+
+      .nav .github-btn {
+        color: #111827;
         text-decoration: none;
-        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #ffffff;
+      }
+
+      .nav .github-btn svg {
+        width: 20px;
+        height: 20px;
+        display: block;
       }
 
       .hero {
@@ -69,8 +151,8 @@
         border: 1px solid var(--line);
         border-radius: 999px;
         font-size: 12px;
-        color: #d2e4ff;
-        background: rgba(255, 255, 255, 0.03);
+        color: var(--blue);
+        background: #ffffff;
       }
 
       h1 {
@@ -81,12 +163,32 @@
         letter-spacing: -0.02em;
       }
 
+      h1 .lang-en {
+        font-family: "Sora", "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        font-weight: 700;
+      }
+
+      h1 .lang-zh {
+        font-family: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        font-weight: 600;
+      }
+
       .sub {
         margin: 0 auto;
         max-width: 760px;
         color: var(--muted);
         font-size: clamp(16px, 2.2vw, 20px);
         line-height: 1.6;
+      }
+
+      .sub .lang-en {
+        font-family: "Sora", "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        font-weight: 500;
+      }
+
+      .sub .lang-zh {
+        font-family: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        font-weight: 500;
       }
 
       .actions {
@@ -106,14 +208,31 @@
       }
 
       .btn.primary {
-        background: linear-gradient(180deg, #6ab0ff 0%, #438ff7 100%);
-        color: #06142b;
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+        color: #ffffff;
       }
 
-      .btn.ghost {
-        border: 1px solid var(--line);
-        color: var(--text);
-        background: rgba(255, 255, 255, 0.04);
+      .btn.primary.chrome-cta {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 56px;
+        min-width: 250px;
+        padding: 12px 18px;
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(99, 102, 241, 0.5);
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        font-family: "Space Grotesk", "Sora", "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      }
+
+      .chrome-logo {
+        width: 34px;
+        height: 34px;
+        flex-shrink: 0;
+        object-fit: contain;
       }
 
       .screen {
@@ -121,8 +240,8 @@
         width: min(1000px, 100%);
         border-radius: 18px;
         overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+        border: 1px solid var(--line);
+        box-shadow: 0 12px 40px rgba(24, 38, 74, 0.12);
         background: var(--card);
       }
 
@@ -133,15 +252,36 @@
       }
 
       .footer {
-        margin-top: 46px;
-        padding: 20px 0 34px;
+        margin-top: 56px;
+        padding: 48px 24px;
         text-align: center;
-        color: var(--muted);
-        font-size: 14px;
+        border-top: 1px solid var(--line);
+        background: #f8fafc;
       }
 
-      .footer a {
-        color: #cfe3ff;
+      .footer-links {
+        margin-bottom: 16px;
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        flex-wrap: wrap;
+      }
+
+      .footer-link {
+        color: var(--muted);
+        font-size: 15px;
+        text-decoration: none;
+        transition: color 0.2s ease;
+      }
+
+      .footer-link:hover {
+        color: var(--text);
+      }
+
+      .footer-note {
+        margin: 0;
+        color: #94a3b8;
+        font-size: 14px;
       }
 
       @media (max-width: 700px) {
@@ -152,36 +292,111 @@
         .nav {
           padding-top: 16px;
         }
+
+        .btn.primary.chrome-cta {
+          min-width: 0;
+          width: 100%;
+        }
       }
     </style>
   </head>
   <body>
     <div class="wrap">
       <header class="nav">
-        <div class="brand">ChatDB Extension</div>
-        <a href="./privacy.html">Privacy Policy</a>
+        <div class="brand">
+          <img src="./favicon.svg" alt="" class="brand-icon" aria-hidden="true" />
+          <span>ChatDB</span>
+        </div>
+        <div class="nav-actions">
+          <div class="lang-switch" aria-label="Language Switch">
+            <button type="button" data-set-lang="zh">中</button>
+            <span class="sep">|</span>
+            <button type="button" data-set-lang="en">En</button>
+          </div>
+          <a
+            class="github-btn"
+            href="https://github.com/timothyxlu/chatdb"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="GitHub Repository"
+            title="GitHub Repository"
+            >
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M8 0C3.58 0 0 3.58 0 8a8.01 8.01 0 0 0 5.47 7.59c.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.5-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.69 7.69 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"
+              ></path>
+            </svg>
+          </a>
+        </div>
       </header>
 
       <main class="hero">
-        <span class="tag">Archive your AI conversations</span>
-        <h1>Your private memory layer for ChatGPT, Gemini, and more.</h1>
+        <span class="tag">
+          <span class="lang-zh">归档你的 AI 对话</span>
+          <span class="lang-en">Archive your AI conversations</span>
+        </span>
+        <h1>
+          <span class="lang-zh">你的私有 AI 对话记忆层，支持 ChatGPT、Gemini 等平台。</span>
+          <span class="lang-en">Your private memory layer for ChatGPT, Gemini, and more.</span>
+        </h1>
         <p class="sub">
-          One-click capture from AI chat websites into ChatDB. Search your full history with full-text
-          and semantic retrieval.
+          <span class="lang-zh">一键保存各类 AI 网站对话到 ChatDB，支持全文检索与语义检索。</span>
+          <span class="lang-en"
+            >One-click capture from AI chat websites into ChatDB. Search your full history with
+            full-text and semantic retrieval.</span
+          >
         </p>
         <div class="actions">
-          <a class="btn primary" href="#">Add to Chrome</a>
-          <a class="btn ghost" href="./privacy.html">Read Privacy Policy</a>
+          <a class="btn primary chrome-cta" href="#">
+            <img src="./chrome-icon.png" alt="" class="chrome-logo" aria-hidden="true" />
+            <span class="lang-zh">添加到 Chrome</span>
+            <span class="lang-en">Add to Chrome</span>
+          </a>
         </div>
 
         <figure class="screen">
           <img src="./UI/screenshot-chat-list.png" alt="ChatDB chat list screenshot" />
         </figure>
       </main>
-
-      <footer class="footer">
-        Contact: <a href="mailto:admin@timothyxlu.xyz">admin@timothyxlu.xyz</a>
-      </footer>
     </div>
+    <footer class="footer">
+      <div class="footer-links">
+        <a class="footer-link" href="mailto:admin@timothyxlu.xyz?subject=ChatDB%20Extension%20Support"
+          ><span class="lang-zh">联系我们</span><span class="lang-en">Contact Us</span></a
+        >
+        <a class="footer-link" href="./privacy.html"
+          ><span class="lang-zh">隐私政策</span><span class="lang-en">Privacy Policy</span></a
+        >
+      </div>
+      <p class="footer-note">
+        <span class="lang-zh">© 2026 ChatDB。保留所有权利。</span
+        ><span class="lang-en">© 2026 ChatDB. All rights reserved.</span>
+      </p>
+    </footer>
+
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var buttons = document.querySelectorAll("[data-set-lang]");
+
+        function applyLang(lang) {
+          root.lang = lang === "zh" ? "zh-CN" : "en";
+          localStorage.setItem("chatdb_lang", lang);
+          buttons.forEach(function (btn) {
+            btn.classList.toggle("active", btn.getAttribute("data-set-lang") === lang);
+          });
+        }
+
+        var current = root.lang.toLowerCase().startsWith("zh") ? "zh" : "en";
+        applyLang(current);
+
+        buttons.forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            applyLang(btn.getAttribute("data-set-lang"));
+          });
+        });
+      })();
+    </script>
   </body>
 </html>
