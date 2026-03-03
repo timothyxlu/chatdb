@@ -3,8 +3,19 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <title>Privacy Policy | ChatDB Extension</title>
     <meta name="description" content="Privacy Policy for ChatDB Chrome extension." />
+    <script>
+      (function () {
+        var saved = localStorage.getItem("chatdb_lang");
+        var lang = saved === "zh" || saved === "en" ? saved : "";
+        if (!lang) {
+          lang = (navigator.language || "").toLowerCase().startsWith("zh") ? "zh" : "en";
+        }
+        document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+      })();
+    </script>
     <style>
       :root {
         --bg: #f6f8fc;
@@ -19,6 +30,14 @@
         box-sizing: border-box;
       }
 
+      html[lang="zh-CN"] .lang-en {
+        display: none;
+      }
+
+      html[lang="en"] .lang-zh {
+        display: none;
+      }
+
       body {
         margin: 0;
         font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
@@ -30,6 +49,48 @@
         width: min(860px, 92vw);
         margin: 0 auto;
         padding: 34px 0 50px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+
+      .top-link {
+        display: inline-block;
+        text-decoration: none;
+        font-size: 14px;
+      }
+
+      .lang-switch {
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #ffffff;
+        padding: 3px 7px;
+      }
+
+      .lang-switch button {
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1;
+        padding: 5px 4px;
+        cursor: pointer;
+      }
+
+      .lang-switch .sep {
+        color: #94a3b8;
+        font-size: 12px;
+      }
+
+      .lang-switch button.active {
+        color: var(--accent);
+        font-weight: 700;
       }
 
       .card {
@@ -69,64 +130,161 @@
         color: #64748b;
         font-size: 14px;
       }
-
-      .top-link {
-        display: inline-block;
-        margin-bottom: 16px;
-        text-decoration: none;
-        font-size: 14px;
-      }
     </style>
   </head>
   <body>
     <div class="wrap">
-      <a class="top-link" href="./">&larr; Back to Home</a>
+      <div class="topbar">
+        <a class="top-link" href="./">
+          <span class="lang-zh">&larr; 返回首页</span>
+          <span class="lang-en">&larr; Back to Home</span>
+        </a>
+        <div class="lang-switch" aria-label="Language Switch">
+          <button type="button" data-set-lang="zh">中</button>
+          <span class="sep">|</span>
+          <button type="button" data-set-lang="en">En</button>
+        </div>
+      </div>
+
       <article class="card">
-        <h1>Privacy Policy</h1>
-        <div class="meta">Last updated: March 3, 2026</div>
+        <h1>
+          <span class="lang-zh">隐私政策</span>
+          <span class="lang-en">Privacy Policy</span>
+        </h1>
+        <div class="meta">
+          <span class="lang-zh">最后更新：2026 年 3 月 3 日</span>
+          <span class="lang-en">Last updated: March 3, 2026</span>
+        </div>
 
         <p>
-          ChatDB Extension is designed to help users save AI chat conversations into their own ChatDB
-          service. We keep data collection minimal and transparent.
+          <span class="lang-zh"
+            >ChatDB Extension 旨在帮助用户将 AI 对话保存到自己的 ChatDB 服务。我们坚持最小化、透明化的数据处理原则。</span
+          >
+          <span class="lang-en"
+            >ChatDB Extension is designed to help users save AI chat conversations into their own ChatDB
+            service. We keep data collection minimal and transparent.</span
+          >
         </p>
 
-        <h2>Information We Process</h2>
+        <h2>
+          <span class="lang-zh">我们处理的信息</span>
+          <span class="lang-en">Information We Process</span>
+        </h2>
         <ul>
-          <li>Conversation content from supported AI chat pages when you explicitly trigger capture.</li>
-          <li>Basic metadata such as source URL, title, and timestamps for saved sessions.</li>
-          <li>Your ChatDB API token, stored locally in the extension to authenticate uploads.</li>
+          <li>
+            <span class="lang-zh">当你主动触发保存时，处理来自支持页面的对话内容。</span>
+            <span class="lang-en"
+              >Conversation content from supported AI chat pages when you explicitly trigger
+              capture.</span
+            >
+          </li>
+          <li>
+            <span class="lang-zh">会话来源链接、标题和时间戳等基础元数据。</span>
+            <span class="lang-en"
+              >Basic metadata such as source URL, title, and timestamps for saved sessions.</span
+            >
+          </li>
+          <li>
+            <span class="lang-zh">用于上传认证的 ChatDB API Token（仅存储在扩展本地）。</span>
+            <span class="lang-en"
+              >Your ChatDB API token, stored locally in the extension to authenticate uploads.</span
+            >
+          </li>
         </ul>
 
-        <h2>How We Use Information</h2>
+        <h2>
+          <span class="lang-zh">信息用途</span>
+          <span class="lang-en">How We Use Information</span>
+        </h2>
         <ul>
-          <li>To upload selected conversation data to your self-hosted ChatDB instance.</li>
-          <li>To provide extension functionality, including manual capture and sync actions.</li>
+          <li>
+            <span class="lang-zh">将你选择的对话数据上传到你的自托管 ChatDB 实例。</span>
+            <span class="lang-en">To upload selected conversation data to your self-hosted ChatDB instance.</span>
+          </li>
+          <li>
+            <span class="lang-zh">提供扩展核心功能，包括手动保存与同步操作。</span>
+            <span class="lang-en"
+              >To provide extension functionality, including manual capture and sync actions.</span
+            >
+          </li>
         </ul>
 
-        <h2>Data Sharing</h2>
+        <h2>
+          <span class="lang-zh">数据共享</span>
+          <span class="lang-en">Data Sharing</span>
+        </h2>
         <p>
-          We do not sell personal data and we do not share conversation data with third-party
-          advertisers. Data is sent only to the ChatDB server endpoint configured by you.
+          <span class="lang-zh"
+            >我们不会出售个人数据，也不会向广告商共享对话内容。数据仅发送到你配置的 ChatDB 服务端地址。</span
+          >
+          <span class="lang-en"
+            >We do not sell personal data and we do not share conversation data with third-party
+            advertisers. Data is sent only to the ChatDB server endpoint configured by you.</span
+          >
         </p>
 
-        <h2>Data Retention</h2>
+        <h2>
+          <span class="lang-zh">数据保留</span>
+          <span class="lang-en">Data Retention</span>
+        </h2>
         <p>
-          Data retention is controlled by your ChatDB deployment. You can delete sessions or revoke
-          tokens from your ChatDB settings at any time.
+          <span class="lang-zh"
+            >数据保留策略由你的 ChatDB 部署决定。你可以随时在 ChatDB 设置中删除会话或吊销 Token。</span
+          >
+          <span class="lang-en"
+            >Data retention is controlled by your ChatDB deployment. You can delete sessions or revoke
+            tokens from your ChatDB settings at any time.</span
+          >
         </p>
 
-        <h2>Security</h2>
+        <h2>
+          <span class="lang-zh">安全建议</span>
+          <span class="lang-en">Security</span>
+        </h2>
         <p>
-          We recommend using HTTPS for your ChatDB endpoint and rotating API tokens periodically. Keep
-          your browser and extension up to date.
+          <span class="lang-zh"
+            >建议为 ChatDB 端点启用 HTTPS，并定期轮换 API Token。同时保持浏览器和扩展为最新版本。</span
+          >
+          <span class="lang-en"
+            >We recommend using HTTPS for your ChatDB endpoint and rotating API tokens periodically. Keep
+            your browser and extension up to date.</span
+          >
         </p>
 
-        <h2>Contact</h2>
+        <h2>
+          <span class="lang-zh">联系我们</span>
+          <span class="lang-en">Contact</span>
+        </h2>
         <p>
-          If you have any questions about this Privacy Policy, contact:
+          <span class="lang-zh">如对隐私政策有疑问，请联系：</span>
+          <span class="lang-en">If you have any questions about this Privacy Policy, contact: </span>
           <a href="mailto:admin@timothyxlu.xyz">admin@timothyxlu.xyz</a>
         </p>
       </article>
     </div>
+
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var buttons = document.querySelectorAll("[data-set-lang]");
+
+        function applyLang(lang) {
+          root.lang = lang === "zh" ? "zh-CN" : "en";
+          localStorage.setItem("chatdb_lang", lang);
+          buttons.forEach(function (btn) {
+            btn.classList.toggle("active", btn.getAttribute("data-set-lang") === lang);
+          });
+        }
+
+        var current = root.lang.toLowerCase().startsWith("zh") ? "zh" : "en";
+        applyLang(current);
+
+        buttons.forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            applyLang(btn.getAttribute("data-set-lang"));
+          });
+        });
+      })();
+    </script>
   </body>
 </html>
