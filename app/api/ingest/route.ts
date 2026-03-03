@@ -1,7 +1,7 @@
 // POST /api/ingest — Upload a conversation from a browser extension.
 //
 // Auth: Authorization: Bearer chatdb_tk_…  (same token format as MCP)
-// Body: { app, title?, messages: [{role, content, created_at?}], metadata? }
+// Body: { app, title?, overwrite?, messages: [{role, content, created_at?}], metadata? }
 
 import { NextRequest, NextResponse } from 'next/server';
 import { eq, and } from 'drizzle-orm';
@@ -12,12 +12,13 @@ import { resolveToken } from '@/lib/token-auth';
 import { sessions, messages, applications } from '@/lib/schema';
 import { getEmbedding } from '@/lib/embed';
 import { getVectorClient } from '@/lib/vector';
-import { ftsInsert } from '@/lib/fts';
+import { ftsInsert, ftsDelete } from '@/lib/fts';
 
 
 const IngestSchema = z.object({
   app: z.string().min(1),
   title: z.string().optional(),
+  overwrite: z.boolean().optional(),
   messages: z
     .array(
       z.object({
@@ -52,11 +53,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid request body', details: String(err) }, { status: 400 });
   }
 
-  const { app, title, messages: msgs, metadata } = body;
+  const { app, title, overwrite, messages: msgs, metadata } = body;
   const database = db(env.DB);
   const now = Date.now();
 
-  // 3. Deduplication — if source_url already exists for this user, skip
+  // 3. Deduplication — if source_url already exists for this user, skip or overwrite
+  let existingSessionId: string | null = null;
   if (metadata?.source_url) {
     const [existing] = await database
       .select({ id: sessions.id })
@@ -65,7 +67,10 @@ export async function POST(req: NextRequest) {
       .limit(1);
 
     if (existing) {
-      return NextResponse.json({ session_id: existing.id, created: false });
+      if (!overwrite) {
+        return NextResponse.json({ session_id: existing.id, created: false });
+      }
+      existingSessionId = existing.id;
     }
   }
 
@@ -75,22 +80,48 @@ export async function POST(req: NextRequest) {
     .values({ id: app, displayName: app })
     .onConflictDoNothing();
 
-  const sessionId = crypto.randomUUID();
   const derivedTitle =
     title ?? msgs.find((m) => m.role === 'user')?.content.slice(0, 80) ?? 'Untitled';
 
-  // 5. Insert session
-  await database.insert(sessions).values({
-    id: sessionId,
-    userId,
-    appId: app,
-    title: derivedTitle,
-    messageCount: msgs.length,
-    sourceUrl: metadata?.source_url ?? null,
-    scrapedAt: metadata?.scraped_at ? metadata.scraped_at * 1000 : null,
-    createdAt: now,
-    updatedAt: now,
-  });
+  // 5. Overwrite: delete old messages, FTS, and vectors
+  let sessionId: string;
+  if (existingSessionId) {
+    sessionId = existingSessionId;
+
+    const oldMsgs = await database
+      .select({ id: messages.id })
+      .from(messages)
+      .where(eq(messages.sessionId, sessionId));
+
+    for (const msg of oldMsgs) {
+      try { await ftsDelete(database, msg.id); } catch { /* non-fatal */ }
+    }
+    if (oldMsgs.length > 0) {
+      try { await getVectorClient(env.VECTORIZE).delete(oldMsgs.map((m) => m.id)); } catch {}
+    }
+
+    await database.delete(messages).where(eq(messages.sessionId, sessionId));
+    await database.update(sessions).set({
+      appId: app,
+      title: derivedTitle,
+      messageCount: msgs.length,
+      scrapedAt: metadata?.scraped_at ? metadata.scraped_at * 1000 : null,
+      updatedAt: now,
+    }).where(eq(sessions.id, sessionId));
+  } else {
+    sessionId = crypto.randomUUID();
+    await database.insert(sessions).values({
+      id: sessionId,
+      userId,
+      appId: app,
+      title: derivedTitle,
+      messageCount: msgs.length,
+      sourceUrl: metadata?.source_url ?? null,
+      scrapedAt: metadata?.scraped_at ? metadata.scraped_at * 1000 : null,
+      createdAt: now,
+      updatedAt: now,
+    });
+  }
 
   // 6. Insert messages + embed
   const vectorRecords = [];
@@ -127,5 +158,11 @@ export async function POST(req: NextRequest) {
     } catch {}
   }
 
-  return NextResponse.json({ session_id: sessionId, message_count: msgs.length, created: true }, { status: 201 });
+  const status = existingSessionId ? 200 : 201;
+  return NextResponse.json({
+    session_id: sessionId,
+    message_count: msgs.length,
+    created: !existingSessionId,
+    overwritten: !!existingSessionId,
+  }, { status });
 }
