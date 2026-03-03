@@ -182,6 +182,29 @@
       + ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
   }
 
+  // Global tooltip — appended to body so it won't be clipped by overflow:hidden ancestors
+  let tipEl = null;
+
+  function showTip(btn) {
+    if (!tipEl) {
+      tipEl = document.createElement('div');
+      tipEl.className = 'chatdb-tip';
+      document.body.appendChild(tipEl);
+    }
+    const text = btn.dataset.tipText;
+    if (!text) return;
+    tipEl.textContent = text;
+    // Position to the left of the button
+    const rect = btn.getBoundingClientRect();
+    tipEl.style.top = `${rect.top + rect.height / 2}px`;
+    tipEl.style.left = `${rect.left - 6}px`;
+    tipEl.style.opacity = '1';
+  }
+
+  function hideTip() {
+    if (tipEl) tipEl.style.opacity = '0';
+  }
+
   function markSynced(btn, scrapedAt) {
     if (btn.querySelector('.chatdb-check')) return;
     const badge = document.createElement('span');
@@ -189,11 +212,9 @@
     badge.innerHTML = CHECK_SVG;
     btn.appendChild(badge);
 
-    const tip = document.createElement('span');
-    tip.className = 'chatdb-tip';
-    tip.textContent = `Updated ${formatTime(scrapedAt)}`;
-    btn.appendChild(tip);
-
+    btn.dataset.tipText = `Updated ${formatTime(scrapedAt)}`;
+    btn.addEventListener('mouseenter', () => showTip(btn));
+    btn.addEventListener('mouseleave', hideTip);
     btn.removeAttribute('title');
   }
 
