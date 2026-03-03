@@ -47,16 +47,22 @@ window.__chatdbPlatform = (() => {
   }
 
   function findInjectionPoint() {
-    // The top bar contains: [title div] [spacer] [share icon-button]
-    // Find the share button (div[role="button"] with ds-icon-button class in the top bar)
-    const shareBtn = document.querySelector(
-      '.ds-icon-button[role="button"]'
-    );
-    if (shareBtn) {
-      // Walk up to find the top-bar flex container (the parent that holds title + share)
-      const topBar = shareBtn.parentElement;
-      if (topBar) {
-        return { parent: topBar, before: shareBtn };
+    // The top bar (title + share button) is the previous sibling of the chat
+    // scroll area that contains .ds-message elements.  Walk up from the first
+    // message until we find an ancestor whose previousElementSibling is a
+    // short bar (<80px tall) containing a .ds-icon-button.
+    const msg = document.querySelector('.ds-message');
+    if (msg) {
+      let el = msg;
+      while (el && el !== document.body) {
+        el = el.parentElement;
+        const sib = el?.previousElementSibling;
+        if (sib && sib.offsetHeight > 20 && sib.offsetHeight < 80) {
+          const iconBtn = sib.querySelector('.ds-icon-button[role="button"]');
+          if (iconBtn) {
+            return { parent: sib, before: iconBtn };
+          }
+        }
       }
     }
 
