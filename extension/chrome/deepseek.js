@@ -63,7 +63,10 @@ window.__chatdbPlatform = (() => {
           // (not a querySelector descendant) so insertBefore works.
           const lastChild = sib.lastElementChild;
           if (lastChild?.classList.contains('ds-icon-button')) {
-            return { parent: sib, before: lastChild };
+            // Insert right after the title div (first child), not before
+            // the share icon at the far right.
+            const secondChild = sib.children[1];
+            return { parent: sib, before: secondChild || lastChild };
           }
         }
       }
