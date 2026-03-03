@@ -133,14 +133,17 @@
         }
       }
 
-      // List items
+      // List items — skip whitespace-only text nodes (HTML formatting indentation)
       if (tag === 'li') {
         const parent = node.parentElement?.tagName.toLowerCase();
         const prefix = parent === 'ol'
           ? `${Array.from(node.parentElement.children).indexOf(node) + 1}. `
           : '- ';
         parts.push(`\n${prefix}`);
-        for (const child of node.childNodes) walk(child);
+        for (const child of node.childNodes) {
+          if (child.nodeType === Node.TEXT_NODE && !child.textContent.trim()) continue;
+          walk(child);
+        }
         return;
       }
 
