@@ -85,9 +85,11 @@ export default function SettingsPage() {
     setRebuildResult(null);
     try {
       const res = await fetch('/api/admin/rebuild-fts', { method: 'POST' });
-      const data = await res.json() as { rebuilt?: boolean; messages_indexed?: number; error?: string };
+      const data = await res.json() as { rebuilt?: boolean; messages_indexed?: number; embeddings_indexed?: number; error?: string };
       if (!res.ok) throw new Error(data.error ?? 'Request failed');
-      setRebuildResult({ ok: true, message: `Done — ${data.messages_indexed ?? 0} messages indexed` });
+      const parts = [`${data.messages_indexed ?? 0} messages indexed`];
+      if (data.embeddings_indexed !== undefined) parts.push(`${data.embeddings_indexed} embeddings rebuilt`);
+      setRebuildResult({ ok: true, message: `Done — ${parts.join(', ')}` });
     } catch (err) {
       setRebuildResult({ ok: false, message: String(err instanceof Error ? err.message : err) });
     } finally {
@@ -338,7 +340,7 @@ export default function SettingsPage() {
                   <div>
                     <label className="text-xs font-semibold text-label-tertiary uppercase tracking-widest">Search Index</label>
                     <p className="text-sm text-label-secondary mt-1.5">
-                      Rebuild the full-text search index with Chinese word segmentation. This re-processes all messages and may take a moment for large databases.
+                      Rebuild the full-text search index and embeddings. This re-processes all messages and may take a moment for large databases.
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
@@ -353,7 +355,7 @@ export default function SettingsPage() {
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                         </svg>
                       )}
-                      {rebuilding ? 'Rebuilding…' : 'Rebuild FTS Index'}
+                      {rebuilding ? 'Rebuilding…' : 'Rebuild FTS Index and Embeddings'}
                     </button>
                     {rebuildResult && (
                       <span className={`text-xs font-medium ${rebuildResult.ok ? 'text-accent-green' : 'text-red-500'}`}>
