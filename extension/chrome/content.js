@@ -245,7 +245,15 @@
     badge.className = 'chatdb-check';
     badge.innerHTML = CHECK_SVG;
     btn.appendChild(badge);
-    btn.title = `Saved to ChatDB · ${formatTime(scrapedAt)}`;
+
+    // Custom tooltip shown to the left on hover
+    const tip = document.createElement('span');
+    tip.className = 'chatdb-tip';
+    tip.textContent = `Updated ${formatTime(scrapedAt)}`;
+    btn.appendChild(tip);
+
+    // Remove native title so it doesn't conflict
+    btn.removeAttribute('title');
   }
 
   async function checkLookup(btn) {
