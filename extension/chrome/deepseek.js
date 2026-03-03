@@ -58,9 +58,12 @@ window.__chatdbPlatform = (() => {
         el = el.parentElement;
         const sib = el?.previousElementSibling;
         if (sib && sib.offsetHeight > 20 && sib.offsetHeight < 80) {
-          const iconBtn = sib.querySelector('.ds-icon-button[role="button"]');
-          if (iconBtn) {
-            return { parent: sib, before: iconBtn };
+          // The share icon is the last direct child of the top bar and
+          // has the ds-icon-button class.  We must use a direct child
+          // (not a querySelector descendant) so insertBefore works.
+          const lastChild = sib.lastElementChild;
+          if (lastChild?.classList.contains('ds-icon-button')) {
+            return { parent: sib, before: lastChild };
           }
         }
       }
