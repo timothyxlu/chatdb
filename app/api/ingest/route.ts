@@ -87,6 +87,7 @@ export async function POST(req: NextRequest) {
     title: derivedTitle,
     messageCount: msgs.length,
     sourceUrl: metadata?.source_url ?? null,
+    scrapedAt: metadata?.scraped_at ? metadata.scraped_at * 1000 : null,
     createdAt: now,
     updatedAt: now,
   });
