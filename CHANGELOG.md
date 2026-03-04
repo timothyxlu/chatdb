@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.3](https://github.com/timothyxlu/chatdb/compare/chatdb-v0.2.2...chatdb-v0.2.3) (2026-03-04)
+
+
+### Bug Fixes
+
+* remove maximumScale to allow Safari desktop mode zoom-out ([fdfd999](https://github.com/timothyxlu/chatdb/commit/fdfd999e520dd37432f3b0c74f95b5d2e0eab556))
+* remove maximumScale to allow Safari desktop mode zoom-out ([3d23cd9](https://github.com/timothyxlu/chatdb/commit/3d23cd93af77ba01ba0d00fd25ae3c5fde874eda))
+
 ## [0.2.2](https://github.com/timothyxlu/chatdb/compare/chatdb-v0.2.1...chatdb-v0.2.2) (2026-03-04)
 
 
