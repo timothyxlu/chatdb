@@ -65,6 +65,20 @@ Key files:
 - If you change the DB schema, include the migration file
 - If you add a new dependency, explain why it can't be done with what's already there
 
+## Versioning and Release Strategy
+
+This repository uses SemVer with Release Please, driven by Conventional Commits.
+
+- `fix:` → patch version bump (`x.y.Z`)
+- `feat:` → minor version bump (`x.Y.0`)
+- `feat!:` or `BREAKING CHANGE:` in commit body/footer → major version bump (`X.0.0`)
+
+Release Please opens a Release PR on pushes to `main`. Merging that Release PR creates:
+
+- a version bump commit (`package.json` + changelog)
+- a Git tag (for example `v0.1.1`)
+- a GitHub Release entry
+
 ## Reporting Issues
 
 Please open a GitHub issue with:
