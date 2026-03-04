@@ -75,10 +75,11 @@ export default function Sidebar({ activePage, filter, onFilterChange }: SidebarP
 
       {/* ── Sidebar drawer ── */}
       <aside className={[
-        'fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-surface-separator flex flex-col shrink-0',
-        'transition-transform duration-300 ease-in-out',
-        'md:relative md:inset-auto md:z-auto md:w-60 md:translate-x-0 md:transition-none',
-        mobileOpen ? 'translate-x-0' : '-translate-x-full',
+        'max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-50 max-md:w-72',
+        mobileOpen ? 'max-md:translate-x-0' : 'max-md:-translate-x-full',
+        'max-md:transition-transform max-md:duration-300 max-md:ease-in-out',
+        'md:relative md:w-60',
+        'bg-white border-r border-surface-separator flex flex-col shrink-0',
       ].join(' ')}>
         {/* Logo */}
         <div className="p-5 border-b border-surface-separator">

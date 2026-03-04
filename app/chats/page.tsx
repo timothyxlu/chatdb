@@ -141,7 +141,7 @@ function ChatsPageInner() {
   }
 
   return (
-    <div className="flex h-screen bg-surface-elevated">
+    <div className="flex h-dvh bg-surface-elevated">
       <Sidebar activePage="chats" filter={filter} onFilterChange={setFilter} />
 
       {/* Main content — pt-14 offsets the fixed mobile top bar */}

@@ -73,7 +73,7 @@ function ChatDetailPageInner() {
     : '';
 
   return (
-    <div className="flex h-screen bg-surface-elevated">
+    <div className="flex h-dvh bg-surface-elevated">
       <Sidebar activePage="chats" />
 
       <main className="flex-1 overflow-y-auto pt-14 md:pt-0">
