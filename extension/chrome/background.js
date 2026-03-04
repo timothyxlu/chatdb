@@ -22,6 +22,32 @@ async function getConfig() {
   };
 }
 
+function getOriginPattern(url) {
+  try {
+    const parsed = new URL(url);
+    return `${parsed.origin}/*`;
+  } catch {
+    return null;
+  }
+}
+
+async function ensureConfigPermission(url) {
+  const originPattern = getOriginPattern(url);
+  if (!originPattern) {
+    return { ok: false, error: 'Invalid ChatDB URL in extension settings' };
+  }
+
+  const granted = await chrome.permissions.contains({ origins: [originPattern] });
+  if (!granted) {
+    return {
+      ok: false,
+      error: 'Host permission missing. Re-open extension settings and save again to grant access.',
+    };
+  }
+
+  return { ok: true };
+}
+
 // Listen for messages from content scripts
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.type === 'chatdb_ingest') {
@@ -45,6 +71,11 @@ async function handleIngest(message, sendResponse) {
     const config = await getConfig();
     if (!config) {
       sendResponse({ error: 'Please configure ChatDB in the extension popup' });
+      return;
+    }
+    const permission = await ensureConfigPermission(config.url);
+    if (!permission.ok) {
+      sendResponse({ error: permission.error });
       return;
     }
 
@@ -76,6 +107,11 @@ async function handleBatchLookup(message, sendResponse) {
       sendResponse({ error: 'not_configured' });
       return;
     }
+    const permission = await ensureConfigPermission(config.url);
+    if (!permission.ok) {
+      sendResponse({ error: permission.error });
+      return;
+    }
 
     const resp = await fetch(`${config.url}/api/ingest/lookup`, {
       method: 'POST',
@@ -103,6 +139,11 @@ async function handleLookup(message, sendResponse) {
     const config = await getConfig();
     if (!config) {
       sendResponse({ error: 'not_configured' });
+      return;
+    }
+    const permission = await ensureConfigPermission(config.url);
+    if (!permission.ok) {
+      sendResponse({ error: permission.error });
       return;
     }
 

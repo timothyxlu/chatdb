@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "Save AI conversations to ChatDB",
   "permissions": ["storage"],
-  "host_permissions": ["https://*/api/ingest", "http://localhost/*"],
+  "optional_host_permissions": ["https://*/api/ingest"],
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
