@@ -123,7 +123,7 @@ export default function SettingsPage() {
     : (appVersion.startsWith('v') ? appVersion : `v${appVersion}`);
 
   return (
-    <div className="flex h-screen bg-surface-elevated">
+    <div className="flex h-dvh bg-surface-elevated">
       <Sidebar activePage="settings" />
 
       <main className="flex-1 overflow-y-auto pt-14 md:pt-0">
