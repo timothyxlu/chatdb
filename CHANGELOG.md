@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.4](https://github.com/timothyxlu/chatdb/compare/chatdb-v0.2.3...chatdb-v0.2.4) (2026-03-04)
+
+
+### Bug Fixes
+
+* widen viewport when mobile device requests desktop mode ([5c75d9f](https://github.com/timothyxlu/chatdb/commit/5c75d9fdd087ba0609061f2a9dc070353af973c5))
+* widen viewport when mobile device requests desktop mode ([c9ffd19](https://github.com/timothyxlu/chatdb/commit/c9ffd1995b9b4c446773c5c8dd109d80a810c716))
+
 ## [0.2.3](https://github.com/timothyxlu/chatdb/compare/chatdb-v0.2.2...chatdb-v0.2.3) (2026-03-04)
 
 
