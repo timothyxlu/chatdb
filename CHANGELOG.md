@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.2](https://github.com/timothyxlu/chatdb/compare/chatdb-v0.2.1...chatdb-v0.2.2) (2026-03-04)
+
+
+### Bug Fixes
+
+* disable PKCE for GitHub OAuth on Cloudflare Workers ([95bf9b1](https://github.com/timothyxlu/chatdb/commit/95bf9b1c9073b248fdf8584c88ed2882f8e1b9a0))
+* disable PKCE for GitHub OAuth on Cloudflare Workers ([d5aa0d7](https://github.com/timothyxlu/chatdb/commit/d5aa0d731939eb1014b9fe180dd8e45b9fb6b3e4))
+
 ## [0.2.1](https://github.com/timothyxlu/chatdb/compare/chatdb-v0.2.0...chatdb-v0.2.1) (2026-03-04)
 
 
