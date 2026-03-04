@@ -18,9 +18,17 @@ export default function SettingsPage() {
   const [mcpUrl, setMcpUrl] = useState('');
   const [rebuilding, setRebuilding] = useState(false);
   const [rebuildResult, setRebuildResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [appVersion, setAppVersion] = useState('Loading...');
 
   useEffect(() => {
     setMcpUrl(`${window.location.origin}/mcp`);
+  }, []);
+
+  useEffect(() => {
+    fetch('/api/version')
+      .then((r) => { if (!r.ok) throw new Error('Request failed'); return r.json(); })
+      .then((d) => setAppVersion((d as { version?: string }).version ?? 'Unavailable'))
+      .catch(() => setAppVersion('Unavailable'));
   }, []);
 
   useEffect(() => {
@@ -109,6 +117,10 @@ export default function SettingsPage() {
     setSavedApp(appId);
     setTimeout(() => setSavedApp(null), 2000);
   };
+
+  const displayVersion = (appVersion === 'Loading...' || appVersion === 'Unavailable')
+    ? appVersion
+    : (appVersion.startsWith('v') ? appVersion : `v${appVersion}`);
 
   return (
     <div className="flex h-screen bg-surface-elevated">
@@ -362,6 +374,28 @@ export default function SettingsPage() {
                         {rebuildResult.message}
                       </span>
                     )}
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-surface-separator p-5 space-y-3">
+                  <div>
+                    <label className="text-xs font-semibold text-label-tertiary uppercase tracking-widest">App Version</label>
+                    <p className="text-sm text-label-secondary mt-1.5">
+                      Current deployed application version for diagnostics and release tracking.
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <code className="text-sm font-mono text-label-primary bg-surface-elevated border border-surface-separator rounded-lg px-3 py-1.5">
+                      {displayVersion}
+                    </code>
+                    <a
+                      href="https://github.com/timothyxlu/chatdb/releases"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs font-semibold text-accent-blue hover:text-accent-blue/80 transition-colors"
+                    >
+                      View Releases
+                    </a>
                   </div>
                 </div>
               </div>
