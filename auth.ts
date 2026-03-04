@@ -15,6 +15,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     GitHub({
       clientId: process.env.AUTH_GITHUB_ID!,
       clientSecret: process.env.AUTH_GITHUB_SECRET!,
+      // Disable PKCE — Cloudflare Workers can't reliably round-trip the
+      // pkceCodeVerifier cookie (especially on iOS Safari desktop-mode switch).
+      // State check is sufficient for server-side OAuth with a client secret.
+      checks: ['state'],
     }),
   ],
   callbacks: {
