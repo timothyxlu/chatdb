@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { PWAProvider } from '@/components/PWAProvider';
+import { DesktopModeViewport } from '@/components/DesktopModeViewport';
 
 export const metadata: Metadata = {
   title: 'ChatDB',
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {children}
         <PWAProvider />
+        <DesktopModeViewport />
       </body>
     </html>
   );
