@@ -127,7 +127,7 @@ export default function SettingsPage() {
       <Sidebar activePage="settings" />
 
       <main className="flex-1 overflow-y-auto md:pt-0" style={{ paddingTop: 'calc(3.5rem + env(safe-area-inset-top))' }}>
-        <div className="px-4 py-5 md:px-8 md:py-8 flex flex-col md:flex-row gap-4 md:gap-6">
+        <div className="px-4 py-5 md:px-8 md:py-8 flex flex-col md:flex-row gap-4 md:gap-6" style={{ paddingBottom: 'calc(1.25rem + env(safe-area-inset-bottom))' }}>
           {/* Tab nav — horizontal scroll on mobile, vertical list on desktop */}
           <div className="md:w-44 md:shrink-0">
             <nav className="flex gap-1 overflow-x-auto pb-1 md:pb-0 md:block md:space-y-0.5">
