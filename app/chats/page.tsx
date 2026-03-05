@@ -141,7 +141,7 @@ function ChatsPageInner() {
   }
 
   return (
-    <div className="flex h-dvh bg-surface-elevated" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+    <div className="flex h-dvh bg-surface-elevated">
       <Sidebar activePage="chats" filter={filter} onFilterChange={setFilter} />
 
       {/* Main content — pt offsets the fixed mobile top bar + safe-area for PWA */}
