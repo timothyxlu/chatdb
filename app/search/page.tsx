@@ -284,7 +284,7 @@ function SearchPageInner() {
         </div>
 
         {/* ── Results ── */}
-        <div className="flex-1 overflow-y-auto px-8 py-6">
+        <div className="flex-1 overflow-y-auto px-8 py-6" style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom))' }}>
           {searching && <div className="text-center text-gray-400 py-16 text-sm">Searching…</div>}
 
           {!searching && searched && (
