@@ -22,10 +22,15 @@ export function DesktopModeViewport() {
     );
     const hasTouch = navigator.maxTouchPoints > 0;
     const isSmallScreen = Math.min(screen.width, screen.height) < 768;
+    const isStandalone =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      ('standalone' in navigator &&
+        (navigator as unknown as { standalone: boolean }).standalone === true);
 
     // Desktop UA + touch-capable + small physical screen
     // → almost certainly a phone that switched to desktop mode
-    if (!hasMobileUA && hasTouch && isSmallScreen) {
+    // But skip if running as installed PWA (standalone also lacks mobile UA)
+    if (!hasMobileUA && hasTouch && isSmallScreen && !isStandalone) {
       const meta = document.querySelector('meta[name="viewport"]');
       if (meta) {
         meta.setAttribute('content', 'width=1024, viewport-fit=cover');
