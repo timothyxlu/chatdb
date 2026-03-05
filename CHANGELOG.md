@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.5](https://github.com/timothyxlu/chatdb/compare/chatdb-v0.2.4...chatdb-v0.2.5) (2026-03-05)
+
+
+### Bug Fixes
+
+* enhance iOS Add to Home Screen with splash screens ([8fb6ea0](https://github.com/timothyxlu/chatdb/commit/8fb6ea0811d4444b35297932759f57103fbf4156))
+* enhance iOS Add to Home Screen with splash screens ([f90d114](https://github.com/timothyxlu/chatdb/commit/f90d11441524cd94191fe54410586968c8315fed))
+
 ## [0.2.4](https://github.com/timothyxlu/chatdb/compare/chatdb-v0.2.3...chatdb-v0.2.4) (2026-03-04)
 
 
