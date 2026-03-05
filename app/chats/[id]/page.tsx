@@ -73,7 +73,7 @@ function ChatDetailPageInner() {
     : '';
 
   return (
-    <div className="flex h-dvh bg-surface-elevated" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+    <div className="flex h-dvh bg-surface-elevated">
       <Sidebar activePage="chats" />
 
       <main className="flex-1 overflow-y-auto md:pt-0" style={{ paddingTop: 'calc(3.5rem + env(safe-area-inset-top))' }}>
