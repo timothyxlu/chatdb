@@ -208,7 +208,7 @@ function SearchPageInner() {
   const fromParam = `?from=${encodeURIComponent('/search?q=' + encodeURIComponent(committedQuery.current))}`;
 
   return (
-    <div className="flex h-dvh bg-[#F5F5F7]">
+    <div className="flex h-dvh bg-[#F5F5F7]" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <Sidebar activePage="search" />
 
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden md:pt-0" style={{ paddingTop: 'calc(3.5rem + env(safe-area-inset-top))' }}>
@@ -284,7 +284,7 @@ function SearchPageInner() {
         </div>
 
         {/* ── Results ── */}
-        <div className="flex-1 overflow-y-auto px-8 py-6" style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom))' }}>
+        <div className="flex-1 overflow-y-auto px-8 py-6">
           {searching && <div className="text-center text-gray-400 py-16 text-sm">Searching…</div>}
 
           {!searching && searched && (

@@ -141,12 +141,12 @@ function ChatsPageInner() {
   }
 
   return (
-    <div className="flex h-dvh bg-surface-elevated">
+    <div className="flex h-dvh bg-surface-elevated" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <Sidebar activePage="chats" filter={filter} onFilterChange={setFilter} />
 
       {/* Main content — pt offsets the fixed mobile top bar + safe-area for PWA */}
       <main className="flex-1 overflow-y-auto md:pt-0" style={{ paddingTop: 'calc(3.5rem + env(safe-area-inset-top))' }}>
-        <div className="px-4 py-5 md:px-8 md:py-8" style={{ paddingBottom: 'calc(1.25rem + env(safe-area-inset-bottom))' }}>
+        <div className="px-4 py-5 md:px-8 md:py-8">
           {/* Header: title + search */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
             <h1 className="text-2xl font-bold text-label-primary tracking-tight">{activeLabel}</h1>
