@@ -211,7 +211,7 @@ function SearchPageInner() {
     <div className="flex h-dvh bg-[#F5F5F7]">
       <Sidebar activePage="search" />
 
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden pt-14 md:pt-0">
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden md:pt-0" style={{ paddingTop: 'calc(3.5rem + env(safe-area-inset-top))' }}>
         {/* ── Search hero ── */}
         <div className="bg-white/80 backdrop-blur border-b border-black/[0.07] px-8 py-6 shrink-0">
           <form onSubmit={handleSubmit}>

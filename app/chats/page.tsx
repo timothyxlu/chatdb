@@ -144,8 +144,8 @@ function ChatsPageInner() {
     <div className="flex h-dvh bg-surface-elevated">
       <Sidebar activePage="chats" filter={filter} onFilterChange={setFilter} />
 
-      {/* Main content — pt-14 offsets the fixed mobile top bar */}
-      <main className="flex-1 overflow-y-auto pt-14 md:pt-0">
+      {/* Main content — pt offsets the fixed mobile top bar + safe-area for PWA */}
+      <main className="flex-1 overflow-y-auto md:pt-0" style={{ paddingTop: 'calc(3.5rem + env(safe-area-inset-top))' }}>
         <div className="px-4 py-5 md:px-8 md:py-8">
           {/* Header: title + search */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">

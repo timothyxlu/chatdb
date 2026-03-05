@@ -47,7 +47,7 @@ export default function Sidebar({ activePage, filter, onFilterChange }: SidebarP
   return (
     <>
       {/* ── Mobile top bar ── */}
-      <div className="md:hidden fixed top-0 inset-x-0 z-40 h-14 bg-white border-b border-surface-separator flex items-center px-4 gap-3">
+      <div className="md:hidden fixed top-0 inset-x-0 z-40 bg-white border-b border-surface-separator flex items-center px-4 gap-3" style={{ paddingTop: 'env(safe-area-inset-top)', minHeight: 'calc(3.5rem + env(safe-area-inset-top))' }}>
         <button
           onClick={() => setMobileOpen(true)}
           className="w-10 h-10 flex items-center justify-center rounded-xl text-label-secondary hover:bg-surface-elevated transition-colors"

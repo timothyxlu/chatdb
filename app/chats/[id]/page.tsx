@@ -76,7 +76,7 @@ function ChatDetailPageInner() {
     <div className="flex h-dvh bg-surface-elevated">
       <Sidebar activePage="chats" />
 
-      <main className="flex-1 overflow-y-auto pt-14 md:pt-0">
+      <main className="flex-1 overflow-y-auto md:pt-0" style={{ paddingTop: 'calc(3.5rem + env(safe-area-inset-top))' }}>
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-label-tertiary">Loading…</div>
