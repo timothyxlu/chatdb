@@ -80,7 +80,7 @@ export default function Sidebar({ activePage, filter, onFilterChange }: SidebarP
         'max-md:transition-transform max-md:duration-300 max-md:ease-in-out',
         'md:relative md:w-60',
         'bg-white border-r border-surface-separator flex flex-col shrink-0',
-      ].join(' ')}>
+      ].join(' ')} style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         {/* Logo */}
         <div className="p-5 border-b border-surface-separator">
           <div className="flex items-center justify-between">
